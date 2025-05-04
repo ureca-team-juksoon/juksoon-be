@@ -1,0 +1,20 @@
+package com.ureca.juksoon.global.security.oauth.converter;
+
+import com.ureca.juksoon.global.security.oauth.response.KakaoResponse;
+import com.ureca.juksoon.global.security.oauth.response.OAuth2Response;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
+
+@Component
+public class OAuth2ResponseConverter {
+    private static final String KAKAO_PROVIDER = "kakao";
+
+    public OAuth2Response convert(String registrationId, OAuth2User target) {
+        OAuth2Response oAuth2Response = null;
+
+        if(registrationId.equals(KAKAO_PROVIDER)){
+            return oAuth2Response = new KakaoResponse(target.getAttributes());
+        }
+        return oAuth2Response;
+    }
+}
