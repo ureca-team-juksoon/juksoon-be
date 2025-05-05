@@ -20,11 +20,15 @@ public class KakaoResponse implements OAuth2Response{
 
     @Override
     public String getEmail() {
-        return attributes.get(Scope.KAKAO_EMAIL_SCOPE.getScopeKey()).toString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> account = (Map<String,Object>) attributes.get(Scope.KAKAO_ACCOUNT_SCOPE.getScopeKey());
+        return account.get(Scope.KAKAO_EMAIL_SCOPE.getScopeKey()).toString();
     }
 
     @Override
     public String getName() {
-        return attributes.get(Scope.KAKAO_NAME_SCOPE.getScopeKey()).toString();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> properties = (Map<String, Object>) attributes.get(Scope.KAKAO_PROPERTY_SCOPE.getScopeKey());
+        return properties.get(Scope.KAKAO_NAME_SCOPE.getScopeKey()).toString();
     }
 }
