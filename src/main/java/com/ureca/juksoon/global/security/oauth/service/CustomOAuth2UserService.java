@@ -1,5 +1,7 @@
 package com.ureca.juksoon.global.security.oauth.service;
 
+import com.ureca.juksoon.domain.refresh.entity.RefreshToken;
+import com.ureca.juksoon.domain.refresh.repository.RefreshTokenRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final OAuth2ResponseConverter scopeConverter;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -47,6 +50,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return existUser
                 .map(user -> {
+                    /**
+                     * 기존에 존재하는 RefreshToken이 존재할 경우 삭제 후 진행
+                     */
+                    Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUser(existUser.get());
+                    boolean isExistRefreshToken = refreshToken.isEmpty();
+
+                    if (!isExistRefreshToken){
+                        refreshTokenRepository.deleteById(refreshToken.get().getId());
+                    }
+
                     return new CustomOAuth2User(getAttributes(user));   //첫 로그인이 아니라면?
                 })
                 .orElseGet(() -> {                                      //첫 로그인이라면?
