@@ -6,9 +6,11 @@ import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.global.security.jwt.filter.JwtAuthenticationFilter;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
+import com.ureca.juksoon.global.security.oauth.filter.CustomLogoutFilter;
 import com.ureca.juksoon.global.security.oauth.handler.CustomOAuth2AuthenticationSuccessHandler;
 import com.ureca.juksoon.global.security.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +18,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -42,6 +46,9 @@ public class SecurityConfig {
                         .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
                         .successHandler(new CustomOAuth2AuthenticationSuccessHandler(jwtProvider, refreshTokenProvider, refreshTokenService)));
 
+        http
+                .addFilterBefore(customLogoutFilter(), LogoutFilter.class);
+
         http    //인가 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll()
@@ -51,6 +58,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         return http.build();
+    }
+
+    @Bean
+    public CustomLogoutFilter customLogoutFilter(){
+        return new CustomLogoutFilter(refreshTokenService);
     }
 
     @Bean

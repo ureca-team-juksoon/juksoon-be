@@ -56,4 +56,12 @@ public class RefreshTokenService {
                 .user(user.get())
                 .build();
     }
+
+    public Boolean existsByToken(String refresh) {
+        return refreshTokenRepository.existsByToken(refresh);
+    }
+
+    public void deleteByToken(String refresh) {
+        refreshTokenRepository.deleteByToken(refresh);
+    }
 }
