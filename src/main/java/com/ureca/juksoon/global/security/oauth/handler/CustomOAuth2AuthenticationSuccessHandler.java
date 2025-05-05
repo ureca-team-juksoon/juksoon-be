@@ -65,6 +65,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         response.setHeader(CustomHeaderType.AUTHORIZATION.getHeader(), BEARER + jwt);
         response.setHeader(CustomHeaderType.REFRESH_TOKEN.getHeader(), refreshToken);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.sendRedirect("http://localhost:5173/");
 
         // ANONYMOUS 사용자인 경우 body에 role을 넣어줌
         UserRole role = jwtProvider.getRole(jwt);
