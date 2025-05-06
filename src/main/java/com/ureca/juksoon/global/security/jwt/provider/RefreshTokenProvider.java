@@ -3,10 +3,7 @@ package com.ureca.juksoon.global.security.jwt.provider;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.global.security.oauth.userdetail.PrincipalKey;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.time.Instant;
@@ -17,7 +14,6 @@ import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import java.security.Key;
 import java.util.Date;
 
 /**

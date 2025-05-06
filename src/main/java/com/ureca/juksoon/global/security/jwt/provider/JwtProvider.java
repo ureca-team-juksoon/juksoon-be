@@ -39,12 +39,7 @@ public class JwtProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /*
-      토큰을 생성하는 메서드
-      claim에는 role, provider, providerId, userId를 넣었다.
-      아래 get메서드들로 claim들을 가져올 수 있다.
-     */
-    public String generateJwtToken(Long userId, UserRole userRole) {
+    public String generateJwtToken(Long userId, UserRole userRole) {    //토큰 생성
         Date now = new Date();
         Date exp = new Date(now.getTime() + jwtTokenValidityMs);    //현재시간 + 유효시간 = 만료되는 시간
 
@@ -64,6 +59,12 @@ public class JwtProvider {
     //userRole을 반환하는 메서드
     public UserRole getRole(String jwt){
         return UserRole.valueOf(getClaims(jwt).get(PrincipalKey.USER_ROLE.getKey(), String.class));
+    }
+
+    public long getTimeUntilExpiration(String jwt) {
+        Date expiration = getClaims(jwt).getExpiration();
+        long now = System.currentTimeMillis();
+        return expiration.getTime() - now;
     }
 
     /*

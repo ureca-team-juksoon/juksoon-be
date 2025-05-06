@@ -14,11 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails {
     private final Map<String, Object> principals;
 
-    /*
-        이 메서드는 Security 인증 흐름 상 필요한 것임
-        어차피, 한 유저 당 UserRole은 한개이니, 아래의 getUserRole을 사용하자.
-     */
-    @Override
+    @Override   //AuthorizationFilter에서 사용하는 권한을 검사하는 메서드 : 우리는 사용할 필요 없음.
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority(principals.get(PrincipalKey.USER_ROLE.getKey()).toString()));

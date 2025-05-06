@@ -5,8 +5,6 @@ import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
 import com.ureca.juksoon.global.security.oauth.userdetail.PrincipalKey;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -14,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -35,32 +33,40 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    public static final String BEARER = "Bearer ";
+    private static final String OAUTH_LOGIN_REQUEST_URI_START_WITH = "/oauth2/authorization";
+    private static final String OAUTH_SUCCESS_LOGIN_CODE_START_WITH = "/login/oauth2/code";
     private final JwtProvider jwtProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = resolveToken(request);
-        if(jwt == null){    //토큰이 없는 경우 그냥 OAuth2 로그인 흐름으로 진행
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        try{
-            setSecurityContextHolder(jwt);
-            filterChain.doFilter(request, response);
-        }catch (ExpiredJwtException e){ //JWT 토큰이 있지만 만료된 경우(refresh 흐름=>403을 클라이언트로)
-            setExceptionResponse(response, HttpStatus.FORBIDDEN, "토큰이 만료되었습니다.");
-        }catch (JwtException | IllegalArgumentException e) { //JWT 토큰이 없거나 이상한 경우 401을 클라이언트로
-            setExceptionResponse(response, HttpStatus.UNAUTHORIZED, "토큰이 없습니다.");
-        }catch (Exception e) {
-            log.error("알 수 없는 에러 발생 {}" + e.getMessage());
-            SecurityContextHolder.clearContext();
-            filterChain.doFilter(request, response);
-        }
+    protected boolean shouldNotFilter(HttpServletRequest request) { //로그인 경로일 시 그냥 OAuth2로그인 흐름으로 진행
+        String uri = request.getRequestURI();
+        return isRelatedInOAuth(uri);
     }
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            validateCookieToken(request);               //jwt 검사
+            String jwt = resolveToken(request);         //jwt 파싱 in cookie
+            setSecurityContextHolder(jwt);              //인증 성공(컨텍스트 홀더 Authentication setting)
+            filterChain.doFilter(request, response);    //다음으로
+    }
+
+    //jwt 토큰 검사 이 예외들은 CustomAuthenticationEntryPoint 에서 잡아줄거임.
+
+    private void validateCookieToken(HttpServletRequest request){
+        Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
+        validateHasJwtInCookie(jwtCookie);
+        validateJwtEmptyOrInvalid(jwtCookie);
+        validateExpiredJwt(jwtCookie);
+    }
+    //토큰을 가져오기.
+
+    private String resolveToken(HttpServletRequest request) {
+        Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
+        return jwtCookie.getValue();
+    }
     //SecurityContextHolder에 Authentication 토큰을 세팅 해줌으로 인증 성공
+
     private void setSecurityContextHolder(String jwt) {
         CustomUserDetails customUserDetails = getCustomUserDetails(jwt);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
@@ -74,26 +80,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userDetails.put(PrincipalKey.USER_ROLE.getKey(), jwtProvider.getRole(jwt));
         return new CustomUserDetails(userDetails);
     }
-
-    //토큰은 헤더에 Authorization: Bearer ey어쩌구~~로 온다. Bearer를 빼주고, ey어쩌구~~만 가져온다. ey어쩌구~~는 인코딩된 Jwt토큰임
-    private String resolveToken(HttpServletRequest request) {
-        Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
-
-        if (jwtCookie == null) return null;
-
-        String jwt = jwtCookie.getValue();
-
-        if (StringUtils.hasText(jwt)) {
-            return jwt;
-        }
-        return null;
+    private void validateHasJwtInCookie(Cookie jwtCookie) {
+        if(jwtCookie == null)
+            throw new AuthenticationServiceException("토큰이 쿠키에 없습니다. 토큰을 Authorization 쿠키에 넣어 보내주세요.");
     }
 
-    //예외 응답으로 처리
-    private void setExceptionResponse(HttpServletResponse response, HttpStatus forbidden, String s)
-            throws IOException {
-        response.setStatus(forbidden.value());
-        response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(s);
+    private void validateJwtEmptyOrInvalid(Cookie jwtCookie) {
+        if(!StringUtils.hasText(jwtCookie.getValue()))
+            throw new AuthenticationServiceException("토큰이 공백이거나, 형식이 이상합니다.");
+    }
+
+    private void validateExpiredJwt(Cookie jwtCookie) {
+        if(jwtProvider.getTimeUntilExpiration(jwtCookie.getValue()) <= 0)
+            throw new AuthenticationServiceException("토큰이 만료되었습니다. /refresh로 리다이렉트 해주세요.");
+    }
+
+    private boolean isRelatedInOAuth(String uri) {
+        return uri.startsWith(OAUTH_LOGIN_REQUEST_URI_START_WITH) || uri.startsWith(OAUTH_SUCCESS_LOGIN_CODE_START_WITH);
     }
 }
