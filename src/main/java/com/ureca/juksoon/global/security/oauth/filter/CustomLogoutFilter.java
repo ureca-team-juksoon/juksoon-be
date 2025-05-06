@@ -1,11 +1,13 @@
 package com.ureca.juksoon.global.security.oauth.filter;
 
 import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
+import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.response.CustomHeaderType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ import java.io.IOException;
  * 1. POST, /logout 요청으로 들어왔는지 uri 검사
  * 2. refresh 토큰이 이미 null 인 경우 비정상적인 접근이라고 판단하여 BAD_REQUEST
  * 3. refresh 토큰이 DB 에서 검색이 안될 경우 동일하게 BAD_REQUEST
- * 4. DB에서 토큰 삭제 및 홀더 클리어
+ * 4. DB에서 토큰 삭제 및 SecurityContextHolder 클리어
  * 5. 카카오 계정과 함께 로그아웃 또는 서비스만 로그아웃 하는 리다이렉트 주소 지정
  */
 @RequiredArgsConstructor
@@ -47,21 +49,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (isInvalidRequest(request)) {
 
             filterChain.doFilter(request, response);
-
-        }
-
-        String refreshToken = request.getHeader(CustomHeaderType.REFRESH_TOKEN.getHeader());
-
-        if (refreshToken == null) {
-
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        Boolean findRefreshToken = refreshTokenService.existsByToken(refreshToken);
+        String refreshToken = getRefreshToken(request);
 
-        if (!findRefreshToken) {
-
+        if (isInvalidRefreshToken(refreshToken)){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -70,18 +63,39 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     /**
-     *  검증 완료된 RefreshToken을 삭제
-     *  SecurityContextHolder 비우기
-     *  카카오와 함께 로그아웃 리다이렉트
+     * 쿠키에서 Refresh_Token 으로된 Key값을 꺼냄
+     */
+    private String getRefreshToken(HttpServletRequest request) {
+
+        String refreshToken = null;
+
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(CustomCookieType.REFRESH_TOKEN.getValue())) {
+                refreshToken = cookie.getValue();
+            }
+        }
+
+        return refreshToken;
+    }
+
+    /**
+     * 검증 완료된 RefreshToken을 삭제
+     * SecurityContextHolder 비우기
+     * 카카오와 함께 로그아웃 리다이렉트
      */
     private void doLogout(String refreshToken, HttpServletResponse response) throws IOException {
         refreshTokenService.deleteByToken(refreshToken);
 
-        response.setStatus(HttpServletResponse.SC_OK);
+        Cookie cookie = new Cookie(CustomCookieType.AUTHORIZATION.getValue(), null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+
         SecurityContextHolder.clearContext();
 
         String url = logoutUri + "?client_id=" + clientId + "&logout_redirect_uri=" + logoutRedirectUri;
-
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.addCookie(cookie);
         response.sendRedirect(url);
     }
 
@@ -94,5 +108,11 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String requestMethod = request.getMethod();
 
         return !requestUri.matches("^\\/logout$") || !requestMethod.equals("POST");
+    }
+
+    private boolean isInvalidRefreshToken(String refreshToken){
+
+        return refreshToken==null || !refreshTokenService.existsByToken(refreshToken);
+
     }
 }

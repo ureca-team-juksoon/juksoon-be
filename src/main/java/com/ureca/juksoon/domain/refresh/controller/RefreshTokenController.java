@@ -2,7 +2,7 @@ package com.ureca.juksoon.domain.refresh.controller;
 
 import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.global.response.CommonResponse;
-import com.ureca.juksoon.global.response.CustomHeaderType;
+import com.ureca.juksoon.global.response.CustomCookieType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class RefreshTokenController {
 
     @GetMapping("/refresh")
     public CommonResponse<?> getRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-        refreshTokenService.updateJwtToken(request.getHeader(CustomHeaderType.REFRESH_TOKEN.getHeader()), response);
+        refreshTokenService.updateJwtToken(request.getHeader(CustomCookieType.REFRESH_TOKEN.getValue()), response);
         return CommonResponse.success(null);
     }
 }

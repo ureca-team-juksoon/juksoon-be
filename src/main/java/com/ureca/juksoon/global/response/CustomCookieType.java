@@ -9,11 +9,11 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum CustomHeaderType {
+public enum CustomCookieType {
     AUTHORIZATION("Authorization"),
     REFRESH_TOKEN("Refresh_Token"),
     ;
 
 
-    private final String header;
+    private final String value;
 }

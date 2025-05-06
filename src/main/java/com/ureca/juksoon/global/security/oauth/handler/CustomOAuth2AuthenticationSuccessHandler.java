@@ -2,10 +2,11 @@ package com.ureca.juksoon.global.security.oauth.handler;
 
 import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.domain.user.entity.UserRole;
-import com.ureca.juksoon.global.response.CustomHeaderType;
+import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
 import com.ureca.juksoon.global.security.oauth.userdetail.PrincipalKey;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,19 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         log.info("Refresh-Token {}", refreshToken);
 
         refreshTokenService.save(refreshToken);                         //refresh token 저장한다. --> 서비스단에서 뭐, refreshTokenProvider 호출
-        setResponseJwtAndRefreshToken(jwt, refreshToken, response);     //응답 헤더에 리프레시 토큰 넣기
+        setBaseResponse(jwt, refreshToken, response);
+    }
+
+    private void setBaseResponse(String jwt, String refreshToken, HttpServletResponse response) throws IOException {
+        setCookieJwtAndRefreshToken(jwt, refreshToken, response);     //쿠키에 토큰 넣기
+
+        response.sendRedirect("http://localhost:5173");
+        // ANONYMOUS 사용자인 경우 body에 role을 넣어줌
+        UserRole role = jwtProvider.getRole(jwt);
+        if (role == UserRole.ROLE_FIRST_LOGIN) {
+            String body = String.format("{\"role\":\"%s\"}", role);
+            response.getWriter().write(body);
+        }
     }
 
     private String generateJwtToken(Long userId, UserRole userRole) {
@@ -61,18 +74,24 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
     만약, userRole이 ROLE_ANONYMOUS이면, BODY에 ROLE_ANONYMOUS를 넣어준다.
     클라이언트는 이를 보고, 요청 URL을 home으로 보내던가, 권한 선택 후 권한 업데이트 API로 보낸다.
      */
-    private void setResponseJwtAndRefreshToken(String jwt, String refreshToken, HttpServletResponse response) throws IOException {
-        response.setHeader(CustomHeaderType.AUTHORIZATION.getHeader(), BEARER + jwt);
-        response.setHeader(CustomHeaderType.REFRESH_TOKEN.getHeader(), refreshToken);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.sendRedirect("http://localhost:5173");
 
-        // ANONYMOUS 사용자인 경우 body에 role을 넣어줌
-        UserRole role = jwtProvider.getRole(jwt);
-        if (role == UserRole.ROLE_FIRST_LOGIN) {
-            String body = String.format("{\"role\":\"%s\"}", role);
-            response.getWriter().write(body);
-        }
+    private void setCookieJwtAndRefreshToken(String jwt, String refreshToken, HttpServletResponse response) {
+        setCookieJwt(jwt, response);
+        setCookieRefreshToken(refreshToken, response);
+    }
+
+    private void setCookieJwt(String jwt, HttpServletResponse response) {
+        Cookie cookie = new Cookie(CustomCookieType.AUTHORIZATION.getValue(), jwt);
+        cookie.setPath("/");
+        cookie.setMaxAge(20000);  // 20초
+        response.addCookie(cookie);
+    }
+
+    private void setCookieRefreshToken(String refreshToken, HttpServletResponse response){
+        Cookie cookie = new Cookie(CustomCookieType.REFRESH_TOKEN.getValue(), refreshToken);
+        cookie.setPath("/");
+        cookie.setMaxAge(20000); //20초
+        response.addCookie(cookie);
     }
 }
 
