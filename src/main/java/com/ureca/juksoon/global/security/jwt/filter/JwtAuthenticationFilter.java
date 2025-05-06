@@ -1,5 +1,6 @@
 package com.ureca.juksoon.global.security.jwt.filter;
 
+import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
@@ -77,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     //토큰은 헤더에 Authorization: Bearer ey어쩌구~~로 온다. Bearer를 빼주고, ey어쩌구~~만 가져온다. ey어쩌구~~는 인코딩된 Jwt토큰임
     private String resolveToken(HttpServletRequest request) {
-        Cookie jwtCookie = WebUtils.getCookie(request, CustomCookieType.AUTHORIZATION.getValue());
+        Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
         String jwt = jwtCookie.getValue();
         if (StringUtils.hasText(jwt) && jwt.startsWith(BEARER)) {
             return jwt.substring(BEARER.length()).trim();

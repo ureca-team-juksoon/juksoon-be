@@ -5,6 +5,8 @@ import com.ureca.juksoon.domain.refresh.repository.RefreshTokenRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
+import com.ureca.juksoon.global.response.CookieUtils;
+import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +44,7 @@ public class RefreshTokenService {
         User user = dbRefreshToken.getUser();
         UserRole role = user.getRole();
         String newAccessToken = jwtProvider.generateJwtToken(user.getId(), role);
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);
+        CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), newAccessToken, 50010000, response);
     }
 
     private boolean isExpired(RefreshToken dbRefreshToken, LocalDateTime now) {

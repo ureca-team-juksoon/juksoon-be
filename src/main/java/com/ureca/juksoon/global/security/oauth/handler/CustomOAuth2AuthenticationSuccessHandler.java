@@ -2,6 +2,7 @@ package com.ureca.juksoon.global.security.oauth.handler;
 
 import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.domain.user.entity.UserRole;
+import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
@@ -81,17 +82,11 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
     }
 
     private void setCookieJwt(String jwt, HttpServletResponse response) {
-        Cookie cookie = new Cookie(CustomCookieType.AUTHORIZATION.getValue(), jwt);
-        cookie.setPath("/");
-        cookie.setMaxAge(20000);  // 20초
-        response.addCookie(cookie);
+        CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), jwt, 50010000, response);
     }
 
     private void setCookieRefreshToken(String refreshToken, HttpServletResponse response){
-        Cookie cookie = new Cookie(CustomCookieType.REFRESH_TOKEN.getValue(), refreshToken);
-        cookie.setPath("/");
-        cookie.setMaxAge(20000); //20초
-        response.addCookie(cookie);
+        CookieUtils.setResponseBasicCookie(CustomCookieType.REFRESH_TOKEN.getValue(), refreshToken, 604800000, response);
     }
 }
 

@@ -2,7 +2,6 @@ package com.ureca.juksoon.global.security.oauth.filter;
 
 import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.global.response.CustomCookieType;
-import com.ureca.juksoon.global.response.CustomHeaderType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

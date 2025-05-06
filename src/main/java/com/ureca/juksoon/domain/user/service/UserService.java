@@ -5,7 +5,10 @@ import com.ureca.juksoon.domain.user.dto.UserRoleRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
+import com.ureca.juksoon.global.response.CookieUtils;
+import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +36,6 @@ public class UserService {
 
     private void sendNewJwt(HttpServletResponse response, User savedUser) {
         String newToken = jwtProvider.generateJwtToken(savedUser.getId(), savedUser.getRole());
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newToken);
+        CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), "Bearer " + newToken, 50010000, response);
     }
 }
