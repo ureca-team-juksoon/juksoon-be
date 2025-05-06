@@ -54,9 +54,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                      * 기존에 존재하는 RefreshToken이 존재할 경우 삭제 후 진행
                      */
                     Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUser(existUser.get());
-                    boolean isExistRefreshToken = refreshToken.isEmpty();
+                    boolean isExistRefreshToken = refreshToken.isPresent();
 
-                    if (!isExistRefreshToken){
+                    if (isExistRefreshToken){
+                        //토큰이 있는 경우
                         refreshTokenRepository.deleteById(refreshToken.get().getId());
                     }
 
