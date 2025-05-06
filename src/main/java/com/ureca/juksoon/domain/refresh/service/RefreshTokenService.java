@@ -8,9 +8,11 @@ import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.existsByToken(refresh);
     }
 
+    @Transactional
     public void deleteByToken(String refresh) {
         refreshTokenRepository.deleteByToken(refresh);
     }

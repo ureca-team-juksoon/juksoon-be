@@ -28,13 +28,13 @@ import java.io.IOException;
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final RefreshTokenService refreshTokenService;
-    @Value("${kakao.logout-uri}")
+    @Value("${logout-with.kakao.logout-uri}")
     private String logoutUri;
 
-    @Value("${kakao.client-id}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
-    @Value("${kakao.logout-redirect-uri}")
+    @Value("${logout-with.kakao.logout-redirect-uri}")
     private String logoutRedirectUri;
 
     @Override
@@ -44,34 +44,38 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
-        String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        if (isInvalidRequest(request)) {
 
             filterChain.doFilter(request, response);
-            return;
-        }
-        String requestMethod = request.getMethod();
-        if (!requestMethod.equals("POST")) {
 
-            filterChain.doFilter(request, response);
-            return;
         }
 
-        String refresh = request.getHeader(CustomHeaderType.REFRESH_TOKEN.getHeader());
+        String refreshToken = request.getHeader(CustomHeaderType.REFRESH_TOKEN.getHeader());
 
-        if (refresh == null) {
+        if (refreshToken == null) {
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        Boolean isExist = refreshTokenService.existsByToken(refresh);
-        if (!isExist) {
+        Boolean findRefreshToken = refreshTokenService.existsByToken(refreshToken);
+
+        if (!findRefreshToken) {
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        refreshTokenService.deleteByToken(refresh);
+
+        doLogout(refreshToken, response);
+    }
+
+    /**
+     *  검증 완료된 RefreshToken을 삭제
+     *  SecurityContextHolder 비우기
+     *  카카오와 함께 로그아웃 리다이렉트
+     */
+    private void doLogout(String refreshToken, HttpServletResponse response) throws IOException {
+        refreshTokenService.deleteByToken(refreshToken);
 
         response.setStatus(HttpServletResponse.SC_OK);
         SecurityContextHolder.clearContext();
@@ -79,5 +83,16 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String url = logoutUri + "?client_id=" + clientId + "&logout_redirect_uri=" + logoutRedirectUri;
 
         response.sendRedirect(url);
+    }
+
+    /**
+     * 요청 uri 검사
+     * /logout && POST
+     */
+    private boolean isInvalidRequest(HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        String requestMethod = request.getMethod();
+
+        return !requestUri.matches("^\\/logout$") || !requestMethod.equals("POST");
     }
 }
