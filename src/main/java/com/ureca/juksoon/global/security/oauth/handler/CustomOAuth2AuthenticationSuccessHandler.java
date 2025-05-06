@@ -7,16 +7,15 @@ import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import com.ureca.juksoon.global.security.jwt.provider.RefreshTokenProvider;
 import com.ureca.juksoon.global.security.oauth.userdetail.PrincipalKey;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import java.io.IOException;
 
 /**
  * Authentication에서 여러가지 정보를 가져와 JWT토큰을 생성해준다.
@@ -29,7 +28,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @Slf4j
 @RequiredArgsConstructor
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    public static final String BEARER = "Bearer ";
+//    public static final String BEARER = "Bearer ";
 
     private final JwtProvider jwtProvider;
     private final RefreshTokenProvider refreshTokenProvider;
@@ -43,7 +42,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         String jwt = generateJwtToken(userId, role);                  //jwt 생성
         String refreshToken = generateRefreshToken(userId, role);     //refresh token 생성
 
-        log.info("JWT {}", BEARER + jwt);
+        log.info("JWT {}", jwt);
         log.info("Refresh-Token {}", refreshToken);
 
         refreshTokenService.save(refreshToken);                         //refresh token 저장한다. --> 서비스단에서 뭐, refreshTokenProvider 호출

@@ -1,6 +1,5 @@
 package com.ureca.juksoon.domain.user.service;
 
-import com.ureca.juksoon.domain.user.dto.UserRoleReq;
 import com.ureca.juksoon.domain.user.dto.UserRoleRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
@@ -8,10 +7,8 @@ import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +33,6 @@ public class UserService {
 
     private void sendNewJwt(HttpServletResponse response, User savedUser) {
         String newToken = jwtProvider.generateJwtToken(savedUser.getId(), savedUser.getRole());
-        CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), "Bearer " + newToken, 50010000, response);
+        CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), newToken, 50010000, response);
     }
 }
