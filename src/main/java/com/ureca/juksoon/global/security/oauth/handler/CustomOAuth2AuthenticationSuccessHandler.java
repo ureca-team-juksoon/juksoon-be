@@ -32,7 +32,7 @@ import java.io.IOException;
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${plus-uri.jwt-authentication-filter.front_final_login_direct}")
-    private final String LOGIN_SUCCESS_REDIRECT_URI;
+    private String LOGIN_SUCCESS_REDIRECT_URI;
 
     private final JwtProvider jwtProvider;
     private final RefreshTokenProvider refreshTokenProvider;
