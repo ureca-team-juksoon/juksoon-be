@@ -54,6 +54,7 @@ plus-uri:
   jwt-authentication-filter:
     oauth_success_login_code_start_with: ${OAUTH_SUCCESS_LOGIN_CODE_START_WITH}
     oauth_login_request_uri_start_with: ${OAUTH_LOGIN_REQUEST_URI_START_WITH}
+    front_final_login_direct: ${FRONT_FINAL_LOGIN_DIRECT}
 
 #<====================================================
 
