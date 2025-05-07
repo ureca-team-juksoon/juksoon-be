@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.refresh.entity;
+package com.ureca.juksoon.global.refresh.entity;
 
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.*;

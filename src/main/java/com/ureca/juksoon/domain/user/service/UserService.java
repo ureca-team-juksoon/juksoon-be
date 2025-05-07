@@ -4,8 +4,10 @@ import com.ureca.juksoon.domain.user.dto.UserRoleRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
+import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
+import com.ureca.juksoon.global.response.ResultCode;
 import com.ureca.juksoon.global.security.jwt.provider.JwtProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,7 @@ public class UserService {
     }
 
     private User updateUserRole(Long userId, UserRole userRole) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found : " + userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
         user.setRole(userRole);
         return userRepository.save(user);
     }

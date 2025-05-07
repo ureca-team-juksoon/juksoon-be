@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,18 +25,26 @@ import java.util.Map;
 
 /**
  * 설명 : SecurityConfig에서 인증이 필요한 URI에 대해 모든 요청에 인증을 진행한다.
- * 요청 헤드에서 Authorization : Bearer {String 타입 JWT 토큰}에서 {String 타입 JWT 토큰}만 가져온다.
- * 가져온 JWT 토큰의 유효성 검사를 한다.
- * => JWT 토큰이 아예 없거나 이상한 경우: OAUTH2 인증 흐름으로 진행한다.(로그인 페이지 리다이렉트) == doFilter()
- * => JWT 토큰이 있지만 만료된 경우 : refresh 토큰을 통한 JWT 토큰 갱신 흐름 == 401 예외 response에 넣기
- * => JWT 토큰이 정상적으로 있는 경우 : JWT의 claims를 Authentication토큰에 넣어주고, 인가 흐름 == SecurityContextHolder 채우고 doFilter
+ * => AccessToken과 Code를 넘겨주는 request의 URI는 필터를 패스한다.
+ * => OAuth2 로그인을 시도하는 request의 URI는 필터를 패스한다.
+ * => Swagger 요청은 필터를 패스한다.
+ *
+ * => 필터 패스 하지않는 모든 요청에 대해
+ * => 토큰 검사 수행 후
+ * => 토큰 정상 : 그대로 실행
+ * => 토큰 이상함 : 401 UNAUTHENTICATION 예외 response로
  */
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private static final String OAUTH_LOGIN_REQUEST_URI_START_WITH = "/oauth2/authorization";
-    private static final String OAUTH_SUCCESS_LOGIN_CODE_START_WITH = "/login/oauth2/code";
-    private static final String SWAGGER_START_WITH = "/swagger-ui";
+    private static final String SWAGGER_START_WITH = "/swagger-ui"; //임시로 넣어줌 후에 삭제할것.
+
+    @Value("${plus-uri.jwt-authentication-filter.oauth_success_login_code_start_with}")
+    private String oauthSuccessLoginCodeStartWith;
+
+    @Value("${plus-uri.jwt-authentication-filter.oauth_login_request_uri_start_with}")
+    private String oauthLoginRequestUriStartWith;
+
     private final JwtProvider jwtProvider;
 
     @Override
@@ -53,21 +62,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     //jwt 토큰 검사 이 예외들은 CustomAuthenticationEntryPoint 에서 잡아줄거임.
-
     private void validateCookieToken(HttpServletRequest request){
         Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
         validateHasJwtInCookie(jwtCookie);
         validateJwtEmptyOrInvalid(jwtCookie);
         validateExpiredJwt(jwtCookie);
     }
-    //토큰을 가져오기.
 
+    //토큰을 가져오기.
     private String resolveToken(HttpServletRequest request) {
         Cookie jwtCookie = CookieUtils.getCookie(CustomCookieType.AUTHORIZATION.getValue(), request);
         return jwtCookie.getValue();
     }
-    //SecurityContextHolder에 Authentication 토큰을 세팅 해줌으로 인증 성공
 
+    //SecurityContextHolder에 Authentication 토큰을 세팅 해줌으로 인증 성공
     private void setSecurityContextHolder(String jwt) {
         CustomUserDetails customUserDetails = getCustomUserDetails(jwt);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
@@ -81,6 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userDetails.put(PrincipalKey.USER_ROLE.getKey(), jwtProvider.getRole(jwt));
         return new CustomUserDetails(userDetails);
     }
+
     private void validateHasJwtInCookie(Cookie jwtCookie) {
         if(jwtCookie == null)
             throw new AuthenticationServiceException("토큰이 쿠키에 없습니다. 토큰을 Authorization 쿠키에 넣어 보내주세요.");
@@ -97,6 +106,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isRelatedInOAuth(String uri) {
-        return uri.startsWith(OAUTH_LOGIN_REQUEST_URI_START_WITH) || uri.startsWith(OAUTH_SUCCESS_LOGIN_CODE_START_WITH) || uri.startsWith(SWAGGER_START_WITH);
+        return uri.startsWith(oauthLoginRequestUriStartWith) || uri.startsWith(oauthSuccessLoginCodeStartWith) || uri.startsWith(SWAGGER_START_WITH);
     }
 }

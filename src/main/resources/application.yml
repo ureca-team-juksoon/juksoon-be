@@ -1,5 +1,5 @@
 
-
+#SPRING==============================================>
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -24,8 +24,10 @@ spring:
       init:
         mode: always
         encoding: UTF-8
+#<====================================================
 
-    # 25.05.04--------->>
+
+#KAKAO_LOGIN==============================================>
   security:
     oauth2:
       client:
@@ -48,16 +50,30 @@ spring:
               - profile_image
               - account_email
 
-    # <<-------------25.05.04
+plus-uri:
+  jwt-authentication-filter:
+    oauth_success_login_code_start_with: ${OAUTH_SUCCESS_LOGIN_CODE_START_WITH}
+    oauth_login_request_uri_start_with: ${OAUTH_LOGIN_REQUEST_URI_START_WITH}
 
+#<====================================================
+
+
+
+#JWT==============================================>
 jwt:
   secret: ${JWT_SECRET}
   access-token-validity-ms: 50000000        # CRUD 구현 편하게 하기 위해, jwt 만료 시간 대폭 확장
   refresh-token-validity-ms: 604800000
+#<====================================================
+
+
+#LOGOUT==============================================>
 logout-with:
   kakao:
     logout-uri: https://kauth.kakao.com/oauth/logout
     logout-redirect-uri: http://localhost:8080/user/role
+#<====================================================
+
 
 
 server:

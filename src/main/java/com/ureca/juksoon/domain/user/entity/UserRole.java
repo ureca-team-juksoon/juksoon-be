@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * USER_TESTER : 고객(테스터, 일반) 유저
- * USER_OWNER : 사장 유저
- * USER_ANONYMOUS : 첫 로그인 시 권한 선택이 안돼있는 유저
+ * ROLE_TESTER : 고객(테스터, 일반) 유저
+ * ROLE_OWNER : 사장 유저
+ * ROLE_FIRST_LOGIN : 첫 로그인 시 권한 선택이 안돼있는 유저
  */
 
 @Getter

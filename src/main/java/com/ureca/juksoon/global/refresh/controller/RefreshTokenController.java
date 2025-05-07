@@ -1,6 +1,6 @@
-package com.ureca.juksoon.domain.refresh.controller;
+package com.ureca.juksoon.global.refresh.controller;
 
-import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
+import com.ureca.juksoon.global.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;

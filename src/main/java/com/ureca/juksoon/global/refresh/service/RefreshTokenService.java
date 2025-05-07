@@ -1,7 +1,7 @@
-package com.ureca.juksoon.domain.refresh.service;
+package com.ureca.juksoon.global.refresh.service;
 
-import com.ureca.juksoon.domain.refresh.entity.RefreshToken;
-import com.ureca.juksoon.domain.refresh.repository.RefreshTokenRepository;
+import com.ureca.juksoon.global.refresh.entity.RefreshToken;
+import com.ureca.juksoon.global.refresh.repository.RefreshTokenRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
@@ -16,7 +16,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

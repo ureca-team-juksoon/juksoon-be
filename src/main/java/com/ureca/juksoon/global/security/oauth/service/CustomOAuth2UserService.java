@@ -1,7 +1,7 @@
 package com.ureca.juksoon.global.security.oauth.service;
 
-import com.ureca.juksoon.domain.refresh.entity.RefreshToken;
-import com.ureca.juksoon.domain.refresh.repository.RefreshTokenRepository;
+import com.ureca.juksoon.global.refresh.entity.RefreshToken;
+import com.ureca.juksoon.global.refresh.repository.RefreshTokenRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;

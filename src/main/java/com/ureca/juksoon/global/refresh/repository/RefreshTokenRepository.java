@@ -1,6 +1,6 @@
-package com.ureca.juksoon.domain.refresh.repository;
+package com.ureca.juksoon.global.refresh.repository;
 
-import com.ureca.juksoon.domain.refresh.entity.RefreshToken;
+import com.ureca.juksoon.global.refresh.entity.RefreshToken;
 import com.ureca.juksoon.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

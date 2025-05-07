@@ -1,7 +1,7 @@
 package com.ureca.juksoon.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
+import com.ureca.juksoon.global.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.global.security.exception.CustomAccessDeniedHandler;
 import com.ureca.juksoon.global.security.exception.CustomAuthenticationEntryPoint;

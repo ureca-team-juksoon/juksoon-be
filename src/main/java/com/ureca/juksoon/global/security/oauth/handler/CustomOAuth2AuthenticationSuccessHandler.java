@@ -1,7 +1,7 @@
 package com.ureca.juksoon.global.security.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ureca.juksoon.domain.refresh.service.RefreshTokenService;
+import com.ureca.juksoon.global.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
