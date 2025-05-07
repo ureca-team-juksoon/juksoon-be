@@ -35,6 +35,7 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String OAUTH_LOGIN_REQUEST_URI_START_WITH = "/oauth2/authorization";
     private static final String OAUTH_SUCCESS_LOGIN_CODE_START_WITH = "/login/oauth2/code";
+    private static final String SWAGGER_START_WITH = "/swagger-ui";
     private final JwtProvider jwtProvider;
 
     @Override
@@ -96,6 +97,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isRelatedInOAuth(String uri) {
-        return uri.startsWith(OAUTH_LOGIN_REQUEST_URI_START_WITH) || uri.startsWith(OAUTH_SUCCESS_LOGIN_CODE_START_WITH);
+        return uri.startsWith(OAUTH_LOGIN_REQUEST_URI_START_WITH) || uri.startsWith(OAUTH_SUCCESS_LOGIN_CODE_START_WITH) || uri.startsWith(SWAGGER_START_WITH);
     }
 }

@@ -57,8 +57,9 @@ public class SecurityConfig {
         http    //인가 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers( "/oauth2/**").permitAll()
+                        .requestMatchers( "/auth/**").permitAll()
                         .requestMatchers("/refresh").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/user/role").hasAnyAuthority(UserRole.ROLE_FIRST_LOGIN.getUserRole())
                         .requestMatchers("/test").hasAnyAuthority(UserRole.ROLE_OWNER.getUserRole())
                         .anyRequest().authenticated());
