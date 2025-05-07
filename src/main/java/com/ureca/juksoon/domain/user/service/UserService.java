@@ -1,10 +1,12 @@
 package com.ureca.juksoon.domain.user.service;
 
+import com.ureca.juksoon.domain.user.dto.UserLoginRes;
 import com.ureca.juksoon.domain.user.dto.UserRoleRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
+import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.CookieUtils;
 import com.ureca.juksoon.global.response.CustomCookieType;
 import com.ureca.juksoon.global.response.ResultCode;
@@ -36,5 +38,23 @@ public class UserService {
     private void sendNewJwt(HttpServletResponse response, User savedUser) {
         String newToken = jwtProvider.generateJwtToken(savedUser.getId(), savedUser.getRole());
         CookieUtils.setResponseBasicCookie(CustomCookieType.AUTHORIZATION.getValue(), newToken, 50010000, response);
+    }
+
+    @Transactional(readOnly = true)
+    public CommonResponse<UserLoginRes> login(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
+
+        UserLoginRes response = toDto(user);
+
+        return CommonResponse.success(response);
+    }
+
+    private UserLoginRes toDto(User user) {
+        return UserLoginRes.builder()
+                .nickname(user.getNickname())
+                .userRole(user.getRole())
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.ureca.juksoon.domain.user.controller;
 
+import com.ureca.juksoon.domain.user.dto.UserLoginRes;
 import com.ureca.juksoon.domain.user.dto.UserRoleReq;
 import com.ureca.juksoon.domain.user.dto.UserRoleRes;
 import com.ureca.juksoon.domain.user.service.UserService;
@@ -22,6 +23,7 @@ public class UserController {
 
     /**
      * 유저 권한 업데이트
+     *
      * @param userDetails jwt 토큰 유저 정보
      * @param userRoleReq 권한 선택 폼으로 받은 유저가 선택한 권한
      */
@@ -34,13 +36,19 @@ public class UserController {
             @Parameter(name = "userRoleReq", description = "유저 권한 폼 선택 권한", required = true)
             @RequestBody UserRoleReq userRoleReq,
             HttpServletResponse response) {
-            UserRoleRes userRoleRes = userService.saveUserRole(userDetails.getUserId(), userRoleReq.getUserRole(), response);
-            return CommonResponse.success(userRoleRes);
+        UserRoleRes userRoleRes = userService.saveUserRole(userDetails.getUserId(), userRoleReq.getUserRole(), response);
+        return CommonResponse.success(userRoleRes);
     }
 
     //테스트 매핑 401 return 해야함
     @GetMapping("/test")
     public CommonResponse<?> test() {
         return CommonResponse.success("권한없음");
+    }
+
+    @GetMapping("/login")
+    public CommonResponse<UserLoginRes> login(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return userService.login(customUserDetails.getUserId());
     }
 }
