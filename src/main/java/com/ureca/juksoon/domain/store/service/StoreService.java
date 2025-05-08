@@ -1,8 +1,8 @@
 package com.ureca.juksoon.domain.store.service;
 
 import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
-import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
+import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
@@ -10,6 +10,7 @@ import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.ResultCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,17 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StoreService {
 
+    private final EntityManager em;
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
     @Transactional
     public CommonResponse<?> createStore(Long userId, StoreCreateReq request) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
 
-        boolean isExist = storeRepository.existsByUser(findUser);
+        boolean isExist = storeRepository.existsByUserId(userId);
 
         if (isExist) throw new GlobalException(ResultCode.ALREADY_EXISTS_STORE);
+
+        User findUser = em.getReference(User.class, userId);
 
         Store store = toEntity(request, findUser);
 
@@ -40,10 +42,7 @@ public class StoreService {
     @Transactional(readOnly = true)
     public CommonResponse<StoreRes> readStore(Long userId) {
 
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
-
-        Store findStore = storeRepository.findByUser(findUser)
+        Store findStore = storeRepository.findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
 
         StoreRes response = toDto(findStore);
@@ -54,10 +53,7 @@ public class StoreService {
     @Transactional
     public CommonResponse<StoreRes> updateStore(Long userId, StoreUpdateReq request) {
 
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
-
-        Store findStore = storeRepository.findByUser(findUser)
+        Store findStore = storeRepository.findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
 
         findStore.updateStore(request.getName(), request.getAddress(), request.getDescription(), request.getLogoImage());
