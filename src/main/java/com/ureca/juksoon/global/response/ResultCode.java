@@ -17,6 +17,9 @@ public enum ResultCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, 1005, "권한이 없는 사용자입니다."),
     DB_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "DB 데이터 문제가 발생했습니다."),
     UNSUPPORTED_REQUEST(HttpStatus.NOT_FOUND, 1007, "존재하지 않는 요청입니다."),
+    INVALID_IMAGE_FILE(HttpStatus.BAD_REQUEST, 1008, "지원하는 파일 형식이 아닙니다."),
+    SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1009, "서버 시스템 문제가 발생했습니다."),
+    NOT_FOUND_FILE(HttpStatus.NOT_FOUND, 1010, "파일을 찾을 수 없습니다."),
 
     // 사용자 2000번대
     USER_NOT_FOUNT(HttpStatus.NOT_FOUND, 2000, "존재하지 않는 사용자입니다."),
