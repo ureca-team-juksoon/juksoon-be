@@ -13,6 +13,7 @@ import com.ureca.juksoon.global.security.oauth.filter.CustomLogoutFilter;
 import com.ureca.juksoon.global.security.oauth.handler.CustomOAuth2AuthenticationSuccessHandler;
 import com.ureca.juksoon.global.security.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,12 +25,17 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${cors.allowed-origin}")
+    private String cors_origin;
     private final SecurityExceptionResponseSetter exceptionResponseSetter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final RefreshTokenProvider refreshTokenProvider;
@@ -43,12 +49,13 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable);
+                .logout(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http    //OAuth2.0 로그인 흐름 설정
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
-                        .successHandler(new CustomOAuth2AuthenticationSuccessHandler(jwtProvider, refreshTokenProvider, refreshTokenService, objectMapper())));
+                        .successHandler(customOAuth2SuccessHandler()));
 
         http    //커스텀 필터들 추가
                 .addFilterBefore(jwtAuthenticationFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
@@ -96,5 +103,29 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler(){
         return new CustomAccessDeniedHandler(exceptionResponseSetter);
+    }
+
+    @Bean
+    public CustomOAuth2AuthenticationSuccessHandler customOAuth2SuccessHandler() {
+        return new CustomOAuth2AuthenticationSuccessHandler(
+                jwtProvider,
+                refreshTokenProvider,
+                refreshTokenService,
+                objectMapper()
+                );
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration(); // cors 설정
+        configuration.addAllowedOrigin(cors_origin); // 허용할 origin 설정
+        configuration.addAllowedOrigin("추가 origin 주소");
+        configuration.addAllowedMethod("*"); // 모든 HTTP 메소드 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 쿠키 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 위 설정 적용
+        return source;
     }
 }
