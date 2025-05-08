@@ -75,7 +75,20 @@ logout-with:
     logout-redirect-uri: http://localhost:8080/user/role
 #<====================================================
 
-
+#S3==============================================>
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET_NAME}
+    credentials:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRETE_ACCESS_KEY}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+#<====================================================
 
 server:
   port: 8080
