@@ -19,7 +19,11 @@ public enum ResultCode {
     UNSUPPORTED_REQUEST(HttpStatus.NOT_FOUND, 1007, "존재하지 않는 요청입니다."),
 
     // 사용자 2000번대
+    USER_NOT_FOUNT(HttpStatus.NOT_FOUND, 2000, "존재하지 않는 사용자입니다."),
 
+    // 사장 3000번대
+    ALREADY_EXISTS_STORE(HttpStatus.CONFLICT, 3000, "이미 가게 정보가 있습니다."),
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, 3001, "해당 가게를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus status;

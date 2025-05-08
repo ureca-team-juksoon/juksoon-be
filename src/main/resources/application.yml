@@ -1,7 +1,9 @@
+
+#SPRING==============================================>
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_RUL}
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
@@ -22,3 +24,58 @@ spring:
       init:
         mode: always
         encoding: UTF-8
+#<====================================================
+
+
+#KAKAO_LOGIN==============================================>
+  security:
+    oauth2:
+      client:
+        provider: # 카카오 서버에 요청을 보낼 때 사용할 URI 정보 지정
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize #카카오톡 로그인 페이지 클라이언트에게 redirect 응답을 보낸다.
+            token-uri: https://kauth.kakao.com/oauth/token #카카오톡 인가코드를 AccessToken으로 교환할 때 호출
+            user-info-uri: https://kapi.kakao.com/v2/user/me #AccessToken을 이용해 사용자 프로필 정보를 요청할 때 호출할 URL
+            user-name-attribute: id  #카카오가 반환하는 사용자 정보 중 어떤 필드를 사용할 식별자로 사용할지 지정
+        registration: # 우리 애플리케이션이 카카오에 클라이언트로 등록된 정보 정의
+          kakao:
+            client-id: ${CLIENT_ID} #카카오 개발자 센터에서 발급받은 앱 키 => 카카오 사이트 앱 키에서 rest api
+            client-secret: ${CLIENT_SECRET} #카카오 개발자 센터에서 추가로 발급받은 비공개 키 => 카카오 사이트 보안에서
+            authorization-grant-type: authorization_code  #OAuth2 인가 방식
+            redirect-uri: ${REDIRECT_URI} #사용자가 인증 후 카카오가 인가 코드를 보내주는 이 서버의 콜백 URL
+            client-authentication-method: client_secret_post
+            client-name: kakao # Spring UI나 로그 등에 표시할 클라이언트 이름
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+
+plus-uri:
+  jwt-authentication-filter:
+    oauth_success_login_code_start_with: ${OAUTH_SUCCESS_LOGIN_CODE_START_WITH}
+    oauth_login_request_uri_start_with: ${OAUTH_LOGIN_REQUEST_URI_START_WITH}
+    front_final_login_direct: ${FRONT_FINAL_LOGIN_DIRECT}
+
+#<====================================================
+
+
+
+#JWT==============================================>
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-validity-ms: 50000000        # CRUD 구현 편하게 하기 위해, jwt 만료 시간 대폭 확장
+  refresh-token-validity-ms: 604800000
+#<====================================================
+
+
+#LOGOUT==============================================>
+logout-with:
+  kakao:
+    logout-uri: https://kauth.kakao.com/oauth/logout
+    logout-redirect-uri: http://localhost:8080/user/role
+#<====================================================
+
+
+
+server:
+  port: 8080

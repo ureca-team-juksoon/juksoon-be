@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 25.05.04 add yml ignore => yml은 민감한 리소스로 깃허브에 올리면 안됨. SKT 꼴이 난다! ###
+.env
