@@ -5,6 +5,7 @@ import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,7 +38,7 @@ public class Store extends BaseEntity {
     @Column(name = "logo_image")
     private String logoImage;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
