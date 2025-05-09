@@ -6,7 +6,6 @@ import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
-import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.ResultCode;
@@ -26,7 +25,6 @@ public class StoreService {
 
     private final EntityManager em;
     private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
     private final S3Service s3Service;
 
     @Transactional

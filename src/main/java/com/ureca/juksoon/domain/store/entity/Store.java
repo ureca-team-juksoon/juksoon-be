@@ -1,7 +1,6 @@
 package com.ureca.juksoon.domain.store.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
-import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
