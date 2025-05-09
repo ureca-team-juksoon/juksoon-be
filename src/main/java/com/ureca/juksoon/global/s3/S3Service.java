@@ -23,7 +23,7 @@ public class S3Service {
     private static final String VIDEO_MP4 = "video/mp4";
 
     private static final int MAX_UPLOAD_IMAGE_SIZE = 10 * 1024 * 1024;
-    private static final int MAX_UPLOAD_VIDEO_SIZE = 50 * 1024 * 1024;
+    private static final int MAX_UPLOAD_VIDEO_SIZE = 100 * 1024 * 1024;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
