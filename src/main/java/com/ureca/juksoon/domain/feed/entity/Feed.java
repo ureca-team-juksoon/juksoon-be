@@ -2,6 +2,7 @@ package com.ureca.juksoon.domain.feed.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
+import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -74,5 +75,13 @@ public class Feed extends BaseEntity {
             .store(store)
             .user(user)
             .build();
+    }
+
+    public void update(ModifyFeedReq req) {
+        this.title = req.getTitle();
+        this.content = req.getContent();
+        this.expiredAt = req.getExpiredAt();
+        this.category = req.getCategory();
+        this.price = req.getPrice();
     }
 }
