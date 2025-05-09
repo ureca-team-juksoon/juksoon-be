@@ -1,7 +1,6 @@
 package com.ureca.juksoon.domain.store.controller;
 
 import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
-import com.ureca.juksoon.domain.store.dto.request.StoreLogoImageReq;
 import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
 import com.ureca.juksoon.domain.store.service.StoreService;

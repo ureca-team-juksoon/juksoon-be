@@ -1,6 +1,9 @@
 
-#SPRING==============================================>
+# SPRING==============================================>
 spring:
+  config:
+    import: optional:dotenv:.env
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -24,10 +27,13 @@ spring:
       init:
         mode: always
         encoding: UTF-8
-#<====================================================
+  servlet: # 한번에 받아올 수 있는 파일의 최대 크기 설정
+    multipart:
+      max-file-size: 100MB # 각 파일의 최대 크기 (30초 동영상 기준)
+      max-request-size: 140MB # 전체 파일의 최대 크기 (동영상 + 이미지)
+  #<====================================================
 
-
-#KAKAO_LOGIN==============================================>
+# KAKAO_LOGIN==============================================>
   security:
     oauth2:
       client:
@@ -56,11 +62,12 @@ plus-uri:
     oauth_login_request_uri_start_with: ${OAUTH_LOGIN_REQUEST_URI_START_WITH}
     front_final_login_direct: ${FRONT_FINAL_LOGIN_DIRECT}
 
+cors:
+  allowed-origin: ${CORS_ORIGIN}
+
 #<====================================================
 
-
-
-#JWT==============================================>
+# JWT==============================================>
 jwt:
   secret: ${JWT_SECRET}
   access-token-validity-ms: 50000000        # CRUD 구현 편하게 하기 위해, jwt 만료 시간 대폭 확장
@@ -68,7 +75,7 @@ jwt:
 #<====================================================
 
 
-#LOGOUT==============================================>
+# LOGOUT==============================================>
 logout-with:
   kakao:
     logout-uri: https://kauth.kakao.com/oauth/logout
@@ -92,3 +99,4 @@ cloud:
 
 server:
   port: 8080
+

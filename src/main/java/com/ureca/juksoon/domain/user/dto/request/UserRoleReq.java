@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.user.dto;
+package com.ureca.juksoon.domain.user.dto.request;
 
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import lombok.Getter;
