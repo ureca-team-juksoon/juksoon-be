@@ -48,12 +48,4 @@ public class Store extends BaseEntity {
         this.description = description;
         this.logoImageURL = logoImageURL;
     }
-
-    public Store(StoreCreateReq request, User user, String logoImageURL) {
-        this.name = request.getName();
-        this.address = request.getAddress();
-        this.description = request.getDescription();
-        this.logoImageURL = logoImageURL;
-        this.user = user;
-    }
 }
