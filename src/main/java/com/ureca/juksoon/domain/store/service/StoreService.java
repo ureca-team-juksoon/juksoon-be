@@ -2,7 +2,7 @@ package com.ureca.juksoon.domain.store.service;
 
 import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
 import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
-import com.ureca.juksoon.domain.store.dto.response.StoreRes;
+import com.ureca.juksoon.domain.store.dto.response.StoreReadRes;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
@@ -48,18 +48,18 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    public CommonResponse<StoreRes> readStore(Long userId) {
+    public CommonResponse<StoreReadRes> readStore(Long userId) {
 
         Store findStore = storeRepository.findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
 
-        StoreRes response = toDto(findStore);
+        StoreReadRes response = toDto(findStore);
 
         return CommonResponse.success(response);
     }
 
     @Transactional
-    public CommonResponse<StoreRes> updateStore(Long userId, StoreUpdateReq request, MultipartFile image) throws UnsupportedEncodingException {
+    public CommonResponse<StoreReadRes> updateStore(Long userId, StoreUpdateReq request, MultipartFile image) throws UnsupportedEncodingException {
 
         Store findStore = storeRepository.findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
@@ -75,8 +75,8 @@ public class StoreService {
         return CommonResponse.success(null);
     }
 
-    private StoreRes toDto(Store store) {
-        return StoreRes.builder()
+    private StoreReadRes toDto(Store store) {
+        return StoreReadRes.builder()
                 .name(store.getName())
                 .address(store.getAddress())
                 .description(store.getDescription())

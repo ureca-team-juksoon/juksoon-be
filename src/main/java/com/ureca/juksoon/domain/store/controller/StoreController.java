@@ -2,7 +2,7 @@ package com.ureca.juksoon.domain.store.controller;
 
 import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
 import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
-import com.ureca.juksoon.domain.store.dto.response.StoreRes;
+import com.ureca.juksoon.domain.store.dto.response.StoreReadRes;
 import com.ureca.juksoon.domain.store.service.StoreService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
@@ -34,14 +34,14 @@ public class StoreController {
     }
 
     @GetMapping
-    public CommonResponse<StoreRes> readStore(
+    public CommonResponse<StoreReadRes> readStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         return storeService.readStore(customUserDetails.getUserId());
     }
 
     @PutMapping
-    public CommonResponse<StoreRes> updateStore(
+    public CommonResponse<StoreReadRes> updateStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestPart StoreUpdateReq request,
             @RequestPart(required = false) MultipartFile image) throws UnsupportedEncodingException {
