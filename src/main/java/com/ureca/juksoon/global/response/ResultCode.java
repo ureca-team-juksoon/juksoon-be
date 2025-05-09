@@ -28,6 +28,9 @@ public enum ResultCode {
     // 가게 3000번대
     ALREADY_EXISTS_STORE(HttpStatus.CONFLICT, 3000, "이미 가게 정보가 있습니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, 3001, "해당 가게를 찾을 수 없습니다."),
+
+    // 피드 4000번대
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, 4000, "피드 정보를 찾을 수 없습니다.")
     ;
 
     private final HttpStatus status;
