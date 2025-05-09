@@ -60,7 +60,7 @@ public class StoreService {
 
     @Transactional
     public CommonResponse<StoreRes> updateStore(Long userId, StoreUpdateReq request, MultipartFile image) throws UnsupportedEncodingException {
-        System.out.println("request = " + request);
+
         Store findStore = storeRepository.findByUserId(userId)
                 .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
         String logoImageURL = findStore.getLogoImageURL();
