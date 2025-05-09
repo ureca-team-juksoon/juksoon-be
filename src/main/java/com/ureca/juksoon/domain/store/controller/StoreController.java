@@ -28,8 +28,8 @@ public class StoreController {
     @PostMapping
     public CommonResponse<?> createStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestPart("request") StoreCreateReq request,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart StoreCreateReq request,
+            @RequestPart(required = false) MultipartFile image) {
         return storeService.createStore(customUserDetails.getUserId(), request, image);
     }
 
