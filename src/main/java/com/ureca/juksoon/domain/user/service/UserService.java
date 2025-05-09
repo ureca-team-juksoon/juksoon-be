@@ -1,7 +1,7 @@
 package com.ureca.juksoon.domain.user.service;
 
-import com.ureca.juksoon.domain.user.dto.UserLoginRes;
-import com.ureca.juksoon.domain.user.dto.UserRoleRes;
+import com.ureca.juksoon.domain.user.dto.responce.UserLoginRes;
+import com.ureca.juksoon.domain.user.dto.responce.UserRoleRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
