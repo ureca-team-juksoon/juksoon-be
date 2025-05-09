@@ -1,8 +1,10 @@
 package com.ureca.juksoon.domain.feed.service;
 
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
+import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
 import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.ModifyFeedRes;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.FeedFile;
 import com.ureca.juksoon.domain.feed.entity.FileType;
@@ -53,19 +55,7 @@ public class FeedService {
         Feed savedFeed = feedRepository.save(feed);
 
         // 이미지 & 비디오: s3 업로드 및 DB 저장
-        List<FeedFile> fileList = new ArrayList<>();
-
-        if (req.getImages() != null && !req.getImages().isEmpty()) {
-            for (MultipartFile image : req.getImages()) {
-                fileList.add(FeedFile.of(feed, s3Service.uploadFile(image, FilePath.Feed), FileType.IMAGE));
-            }
-        }
-
-        if(req.getVideo() != null && !req.getVideo().isEmpty()) { // VIDEO가 존재하면 저장
-            fileList.add(FeedFile.of(feed, s3Service.uploadFile(req.getVideo(), FilePath.Feed), FileType.VIDEO));
-        }
-
-        feedFileRepository.saveAll(fileList);
+        saveFeedFiles(req.getImages(), req.getVideo(), savedFeed);
 
         return new CreateFeedRes(savedFeed.getId());
     }
@@ -83,16 +73,56 @@ public class FeedService {
 
         List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
 
-        // S3에서 제거
-        for (FeedFile file : files) {
-            s3Service.deleteFile(file.getUrl(), FilePath.Feed);
-        }
-
-        // DB 정보 제거
+        // feedFile 제거
+        s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
         feedFileRepository.deleteAll(files);
+
+        // feed 제거
         feedRepository.delete(feed);
 
         return new DeleteFeedRes();
+    }
+
+    /**
+     * Feed 수정
+     */
+    @Transactional
+    public ModifyFeedRes modifyFeed(Long userId, Long feedId, ModifyFeedReq req) {
+        // 권한 확인 : 본인이 작성한 피드만 삭제 가능
+        User user = findUser(userId);
+        Feed feed = findFeed(feedId);
+
+        checkAuthority(user, feed);
+
+        // feed 정보 갱신
+        feed.update(req);
+
+        // 기존 feedFile 정보 제거
+        List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
+
+        s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
+        feedFileRepository.deleteAll(files);
+
+        // 새로운 feedFile 정보 추가
+        saveFeedFiles(req.getImages(), req.getVideo(), feed);
+
+        return new ModifyFeedRes();
+    }
+
+    private void saveFeedFiles(List<MultipartFile> images, MultipartFile video, Feed feed) {
+        List<FeedFile> fileList = new ArrayList<>();
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                fileList.add(FeedFile.of(feed, s3Service.uploadFile(image, FilePath.Feed), FileType.IMAGE));
+            }
+        }
+
+        if(video != null && !video.isEmpty()) { // VIDEO가 존재하면 저장
+            fileList.add(FeedFile.of(feed, s3Service.uploadFile(video, FilePath.Feed), FileType.VIDEO));
+        }
+
+        feedFileRepository.saveAll(fileList);
     }
 
     private void checkAuthority(User user, Feed feed) {
