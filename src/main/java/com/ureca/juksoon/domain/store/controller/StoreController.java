@@ -43,8 +43,8 @@ public class StoreController {
     @PutMapping
     public CommonResponse<StoreRes> updateStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestPart("request") StoreUpdateReq request,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws UnsupportedEncodingException {
+            @RequestPart StoreUpdateReq request,
+            @RequestPart(required = false) MultipartFile image) throws UnsupportedEncodingException {
 
         return storeService.updateStore(customUserDetails.getUserId(), request, image);
     }
