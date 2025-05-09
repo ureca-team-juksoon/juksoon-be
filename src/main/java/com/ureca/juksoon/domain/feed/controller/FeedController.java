@@ -2,6 +2,7 @@ package com.ureca.juksoon.domain.feed.controller;
 
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
 import com.ureca.juksoon.domain.feed.service.FeedService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.s3.S3Service;
@@ -11,10 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/feed")
@@ -36,8 +34,22 @@ public class FeedController {
         @AuthenticationPrincipal CustomUserDetails userDetail,
         @Parameter(description = "피드 생성 정보", required = true)
         @Valid @ModelAttribute CreateFeedReq req) {
-        CreateFeedRes feed = feedService.createFeed(userDetail.getUserId(), req);
-        return CommonResponse.success(feed);
+        return CommonResponse.success(feedService.createFeed(userDetail.getUserId(), req));
+    }
+
+    /**
+     * 피드 삭제
+     * @param userDetail 사용자 정보
+     * @param feedId 삭제할 feed Id
+     */
+    @Operation(summary = "피드 삭제", description = "피드 삭제: 로그인 필요")
+    @DeleteMapping("/{feedId}")
+    public CommonResponse<DeleteFeedRes> deleteFeed(
+        @Parameter(description = "사용자정보", required = true)
+        @AuthenticationPrincipal CustomUserDetails userDetail,
+        @Parameter(description = "피드 id", required = true)
+        @PathVariable Long feedId) {
+        return CommonResponse.success(feedService.deleteFeed(userDetail.getUserId(), feedId));
     }
 
 
