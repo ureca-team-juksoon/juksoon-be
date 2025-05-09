@@ -35,25 +35,25 @@ public class Store extends BaseEntity {
     private String address;
     @Column(name = "description")
     private String description;
-    @Column(name = "logo_image")
-    private String logoImage;
+    @Column(name = "logo_image_url")
+    private String logoImageURL;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void updateStore(String name, String address, String description, String logoImage) {
+    public void updateStore(String name, String address, String description, String logoImageURL) {
         this.name = name;
         this.address = address;
         this.description = description;
-        this.logoImage = logoImage;
+        this.logoImageURL = logoImageURL;
     }
 
-    public Store(StoreCreateReq request, User user) {
+    public Store(StoreCreateReq request, User user, String logoImageURL) {
         this.name = request.getName();
         this.address = request.getAddress();
         this.description = request.getDescription();
-        this.logoImage = request.getLogoImage();
+        this.logoImageURL = logoImageURL;
         this.user = user;
     }
 }
