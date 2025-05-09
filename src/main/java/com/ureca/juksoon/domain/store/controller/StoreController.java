@@ -1,8 +1,8 @@
 package com.ureca.juksoon.domain.store.controller;
 
 import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
-import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
+import com.ureca.juksoon.domain.store.dto.response.StoreRes;
 import com.ureca.juksoon.domain.store.service.StoreService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
@@ -11,10 +11,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,8 +28,9 @@ public class StoreController {
     @PostMapping
     public CommonResponse<?> createStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody StoreCreateReq request) {
-        return storeService.createStore(customUserDetails.getUserId(), request);
+            @RequestPart("request") StoreCreateReq request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return storeService.createStore(customUserDetails.getUserId(), request, image);
     }
 
     @GetMapping
@@ -40,8 +43,9 @@ public class StoreController {
     @PutMapping
     public CommonResponse<StoreRes> updateStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody StoreUpdateReq request) {
+            @RequestPart("request") StoreUpdateReq request,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws UnsupportedEncodingException {
 
-        return storeService.updateStore(customUserDetails.getUserId(), request);
+        return storeService.updateStore(customUserDetails.getUserId(), request, image);
     }
 }

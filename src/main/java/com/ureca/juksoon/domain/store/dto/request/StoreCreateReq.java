@@ -13,5 +13,4 @@ public class StoreCreateReq {
     private String name;
     private String address;
     private String description;
-    private String logoImage;
 }

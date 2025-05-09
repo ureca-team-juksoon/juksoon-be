@@ -13,5 +13,5 @@ public class StoreRes {
     private String name;
     private String address;
     private String description;
-    private String logoImage;
+    private String logoImageURL;
 }
