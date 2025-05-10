@@ -2,18 +2,17 @@ package com.ureca.juksoon.domain.feed.service;
 
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
-import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
-import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
-import com.ureca.juksoon.domain.feed.dto.responce.GetFeedDetailRes;
-import com.ureca.juksoon.domain.feed.dto.responce.ModifyFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.*;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.FeedFile;
 import com.ureca.juksoon.domain.feed.entity.FileType;
 import com.ureca.juksoon.domain.feed.repository.FeedFileRepository;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
+import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
+import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.s3.FilePath;
@@ -39,8 +38,37 @@ public class FeedService {
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final ReservationRepository reservationRepository;
     private final FeedRepository feedRepository;
     private final FeedFileRepository feedFileRepository;
+
+    /**
+     * Mypage 조회
+     */
+    public GetMypageInfoRes getMypageInfo(Long userId) {
+        User user = findUser(userId);
+
+        if(user.getRole() == UserRole.ROLE_TESTER) { // 일반 사용자
+            // Reservation 기반 조회
+            List<GetFeedRes> feedResList = reservationRepository.findAllByUser(user).stream()
+                .map(r -> new GetFeedRes(r.getFeed(), user.getRole()))
+                .toList();
+
+            return new GetMypageInfoRes(user.getId(), user.getNickname(), user.getRole(), feedResList);
+        } else if(user.getRole() == UserRole.ROLE_OWNER) { // 사장님
+            Store store = findStoreByUserId(user.getId());
+
+            // store 기반 조회
+            List<GetFeedRes> feedResList = feedRepository.findAllByStore(store).stream()
+                .map(feed -> new GetFeedRes(feed, user.getRole()))
+                .toList();
+
+            return new GetMypageInfoRes(store.getId(), store.getName(), user.getRole(), feedResList);
+        }
+
+        // 이외의 경우에는 myPage 접근 불가
+        throw new GlobalException(FORBIDDEN);
+    }
 
     /**
      * Feed 단일 조회
@@ -59,7 +87,6 @@ public class FeedService {
                 videoUrl = file.getUrl();
             }
         }
-
         return new GetFeedDetailRes(feed, (imageUrlList.isEmpty() ? null : imageUrlList), videoUrl);
     }
 

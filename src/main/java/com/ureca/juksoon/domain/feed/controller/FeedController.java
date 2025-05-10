@@ -2,10 +2,7 @@ package com.ureca.juksoon.domain.feed.controller;
 
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
-import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
-import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
-import com.ureca.juksoon.domain.feed.dto.responce.GetFeedDetailRes;
-import com.ureca.juksoon.domain.feed.dto.responce.ModifyFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.*;
 import com.ureca.juksoon.domain.feed.service.FeedService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
@@ -22,6 +19,18 @@ import org.springframework.web.bind.annotation.*;
 public class FeedController {
 
     private final FeedService feedService;
+
+    /**
+     * 피드 상세 조회 (Mypage)
+     * @param userDetail 사용자 정보
+     */
+    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 상세 조회(Mypage): 로그인 필요")
+    @GetMapping("/mypage")
+    public CommonResponse<GetMypageInfoRes> getMypageInfo(
+        @Parameter(description = "사용자정보", required = true)
+        @AuthenticationPrincipal CustomUserDetails userDetail) {
+        return CommonResponse.success(feedService.getMypageInfo(userDetail.getUserId()));
+    }
 
     /**
      * 피드 단일 조회
