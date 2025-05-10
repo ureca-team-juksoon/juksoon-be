@@ -40,7 +40,7 @@ public class GetFeedRes {
         this.expiredAt = feed.getExpiredAt();
         this.status = feed.getStatus();
 
-        if(role == UserRole.ROLE_TESTER) { // 유저인 경우에만 필요한 정보
+        if(role != UserRole.ROLE_OWNER) { // 사장은 표기X
             this.price = feed.getPrice();
             this.storeName = feed.getStore().getName();
         }

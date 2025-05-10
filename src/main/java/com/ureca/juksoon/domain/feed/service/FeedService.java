@@ -3,9 +3,8 @@ package com.ureca.juksoon.domain.feed.service;
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.dto.responce.*;
-import com.ureca.juksoon.domain.feed.entity.Feed;
-import com.ureca.juksoon.domain.feed.entity.FeedFile;
-import com.ureca.juksoon.domain.feed.entity.FileType;
+import com.ureca.juksoon.domain.feed.entity.*;
+import com.ureca.juksoon.domain.feed.repository.CustomFeedRepository;
 import com.ureca.juksoon.domain.feed.repository.FeedFileRepository;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
@@ -20,6 +19,7 @@ import com.ureca.juksoon.global.s3.S3Service;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +40,17 @@ public class FeedService {
     private final StoreRepository storeRepository;
     private final ReservationRepository reservationRepository;
     private final FeedRepository feedRepository;
+    private final CustomFeedRepository customFeedRepository;
     private final FeedFileRepository feedFileRepository;
+
+    /**
+     * Home 조회
+     */
+    public GetHomeInfoRes getHomeInfo(Pageable page, String keyword, Category category, boolean isAvailable, SortType sortType) {
+        return new GetHomeInfoRes(customFeedRepository.findAllByFiltering(page, isAvailable, sortType, category, keyword).stream()
+            .map(feed -> new GetFeedRes(feed, null))
+            .toList());
+    }
 
     /**
      * Mypage 조회
