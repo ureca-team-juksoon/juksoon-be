@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreRes {
+public class StoreReadRes {
     private String name;
     private String address;
     private String description;
-    private String logoImage;
+    private String logoImageURL;
 }

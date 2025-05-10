@@ -1,10 +1,10 @@
 package com.ureca.juksoon.domain.store.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
-import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,25 +34,17 @@ public class Store extends BaseEntity {
     private String address;
     @Column(name = "description")
     private String description;
-    @Column(name = "logo_image")
-    private String logoImage;
+    @Column(name = "logo_image_url")
+    private String logoImageURL;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void updateStore(String name, String address, String description, String logoImage) {
+    public void updateStore(String name, String address, String description, String logoImageURL) {
         this.name = name;
         this.address = address;
         this.description = description;
-        this.logoImage = logoImage;
-    }
-
-    public Store(StoreCreateReq request, User user) {
-        this.name = request.getName();
-        this.address = request.getAddress();
-        this.description = request.getDescription();
-        this.logoImage = request.getLogoImage();
-        this.user = user;
+        this.logoImageURL = logoImageURL;
     }
 }

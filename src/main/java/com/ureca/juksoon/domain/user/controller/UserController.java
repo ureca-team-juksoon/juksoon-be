@@ -1,8 +1,8 @@
 package com.ureca.juksoon.domain.user.controller;
 
-import com.ureca.juksoon.domain.user.dto.UserLoginRes;
-import com.ureca.juksoon.domain.user.dto.UserRoleReq;
-import com.ureca.juksoon.domain.user.dto.UserRoleRes;
+import com.ureca.juksoon.domain.user.dto.request.UserRoleReq;
+import com.ureca.juksoon.domain.user.dto.responce.UserLoginRes;
+import com.ureca.juksoon.domain.user.dto.responce.UserRoleRes;
 import com.ureca.juksoon.domain.user.service.UserService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
