@@ -55,7 +55,7 @@ public class GetFeedDetailRes {
     private String description;
 
     @Schema(description = "로고 이미지 Url", example = "로고 링크")
-    private String logoImage;
+    private String logoImageUrl;
 
     public GetFeedDetailRes(Feed feed, List<String> imageUrlList, String videoUrl) {
         this.id = feed.getId();
@@ -72,6 +72,6 @@ public class GetFeedDetailRes {
         this.storeName = feed.getStore().getName();
         this.address = feed.getStore().getAddress();
         this.description = feed.getStore().getDescription();
-        this.logoImage = feed.getStore().getLogoImage();
+        this.logoImageUrl = feed.getStore().getLogoImageURL();
     }
 }
