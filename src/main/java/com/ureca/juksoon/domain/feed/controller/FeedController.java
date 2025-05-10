@@ -4,10 +4,10 @@ import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
 import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.GetFeedDetailRes;
 import com.ureca.juksoon.domain.feed.dto.responce.ModifyFeedRes;
 import com.ureca.juksoon.domain.feed.service.FeedService;
 import com.ureca.juksoon.global.response.CommonResponse;
-import com.ureca.juksoon.global.s3.S3Service;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +22,18 @@ import org.springframework.web.bind.annotation.*;
 public class FeedController {
 
     private final FeedService feedService;
-    private final S3Service s3Service;
+
+    /**
+     * 피드 단일 조회
+     * @param feedId 피드 id
+     */
+    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 상세 조회")
+    @GetMapping("/{feedId}")
+    public CommonResponse<GetFeedDetailRes> getFeedDetail(
+        @Parameter(description = "피드 id", required = true)
+        @PathVariable Long feedId) {
+        return CommonResponse.success(feedService.getFeedDetail(feedId));
+    }
 
     /**
      * 피드 생성

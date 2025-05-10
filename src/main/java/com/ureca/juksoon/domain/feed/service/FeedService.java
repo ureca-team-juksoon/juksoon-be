@@ -4,6 +4,7 @@ import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.dto.responce.CreateFeedRes;
 import com.ureca.juksoon.domain.feed.dto.responce.DeleteFeedRes;
+import com.ureca.juksoon.domain.feed.dto.responce.GetFeedDetailRes;
 import com.ureca.juksoon.domain.feed.dto.responce.ModifyFeedRes;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.FeedFile;
@@ -40,6 +41,27 @@ public class FeedService {
     private final StoreRepository storeRepository;
     private final FeedRepository feedRepository;
     private final FeedFileRepository feedFileRepository;
+
+    /**
+     * Feed 단일 조회
+     */
+    public GetFeedDetailRes getFeedDetail(Long feedId) {
+        Feed feed = findFeed(feedId);
+        List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
+
+        // 이미지 파일 분리
+        List<String> imageUrlList = new ArrayList<>();
+        String videoUrl = null;
+        for (FeedFile file : files) {
+            if(file.getType() == FileType.IMAGE) {
+                imageUrlList.add(file.getUrl());
+            } else {
+                videoUrl = file.getUrl();
+            }
+        }
+
+        return new GetFeedDetailRes(feed, (imageUrlList.isEmpty() ? null : imageUrlList), videoUrl);
+    }
 
     /**
      * Feed 생성
