@@ -133,8 +133,10 @@ public class FeedService {
         List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
 
         // feedFile 제거
-        s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
-        feedFileRepository.deleteAll(files);
+        if(!files.isEmpty()) {
+            s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
+            feedFileRepository.deleteAll(files);
+        }
 
         // feed 제거
         feedRepository.delete(feed);
