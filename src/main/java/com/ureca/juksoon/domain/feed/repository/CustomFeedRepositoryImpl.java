@@ -5,6 +5,8 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ureca.juksoon.domain.feed.entity.*;
+import com.ureca.juksoon.domain.store.entity.Store;
+import com.ureca.juksoon.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.ureca.juksoon.domain.feed.entity.QFeed.feed;
+import static com.ureca.juksoon.domain.reservation.entity.QReservation.reservation;
 import static com.ureca.juksoon.domain.store.entity.QStore.store;
 
 @Repository
@@ -39,11 +42,37 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .fetch();
     }
 
+    @Override
+    public List<Feed> findAllByUserOrderByFeedIdDesc(Pageable pageable, User user, Long lastFeedId) {
+        return jpaQueryFactory
+            .select(feed)
+            .from(reservation)
+            .join(reservation.feed, feed)
+            .orderBy(feed.id.desc())
+            .where(
+                reservation.user.eq(user),
+                ltFeedId(lastFeedId))
+            .limit(pageable.getPageSize())
+            .fetch();
+    }
+
+    @Override
+    public List<Feed> findAllByStoreOrderByFeedIdDesc(Pageable pageable, Store store, Long lastFeedId) {
+        return jpaQueryFactory
+            .selectFrom(feed)
+            .orderBy(feed.id.desc())
+            .where(
+                feed.store.eq(store),
+                ltFeedId(lastFeedId))
+            .limit(pageable.getPageSize())
+            .fetch();
+    }
+
     // 정렬 순서 설정
     private OrderSpecifier<?> getSortTypeSpecifier(SortType sortType) {
         return switch (sortType) {
             case PRICE_ASC -> new OrderSpecifier<>(Order.ASC, QFeed.feed.price);
-            case RECENT -> new OrderSpecifier<>(Order.DESC, QFeed.feed.createdAt);
+            case RECENT -> new OrderSpecifier<>(Order.DESC, QFeed.feed.id);
             default -> new OrderSpecifier<>(Order.DESC, QFeed.feed.registeredUser.doubleValue().divide(QFeed.feed.maxUser.doubleValue()));
         };
     }
@@ -64,5 +93,11 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
 
         return feed.title.contains(keyword)
             .or(feed.store.name.contains(keyword));
+    }
+
+    // 커서 설정 (id가 클수록 최신)
+    private BooleanExpression ltFeedId(Long lastFeedId) {
+        if(lastFeedId == null) return null;
+        return feed.id.lt(lastFeedId);
     }
 }

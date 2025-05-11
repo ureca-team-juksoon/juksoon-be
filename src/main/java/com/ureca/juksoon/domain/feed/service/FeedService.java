@@ -46,8 +46,8 @@ public class FeedService {
     /**
      * Home 조회
      */
-    public GetHomeInfoRes getHomeInfo(Pageable page, String keyword, Category category, boolean isAvailable, SortType sortType) {
-        return new GetHomeInfoRes(customFeedRepository.findAllByFiltering(page, isAvailable, sortType, category, keyword).stream()
+    public GetHomeInfoRes getHomeInfo(Pageable pageable, String keyword, Category category, boolean isAvailable, SortType sortType) {
+        return new GetHomeInfoRes(customFeedRepository.findAllByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
             .map(feed -> new GetFeedRes(feed, null))
             .toList());
     }
@@ -55,13 +55,13 @@ public class FeedService {
     /**
      * Mypage 조회
      */
-    public GetMypageInfoRes getMypageInfo(Long userId) {
+    public GetMypageInfoRes getMypageInfo(Long userId, Pageable pageable, Long lastFeedId) {
         User user = findUser(userId);
 
         if(user.getRole() == UserRole.ROLE_TESTER) { // 일반 사용자
             // Reservation 기반 조회
-            List<GetFeedRes> feedResList = reservationRepository.findAllByUser(user).stream()
-                .map(r -> new GetFeedRes(r.getFeed(), user.getRole()))
+            List<GetFeedRes> feedResList = customFeedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
+                .map(f -> new GetFeedRes(f, user.getRole()))
                 .toList();
 
             return new GetMypageInfoRes(user.getId(), user.getNickname(), user.getRole(), feedResList);
@@ -69,7 +69,7 @@ public class FeedService {
             Store store = findStoreByUserId(user.getId());
 
             // store 기반 조회
-            List<GetFeedRes> feedResList = feedRepository.findAllByStore(store).stream()
+            List<GetFeedRes> feedResList = customFeedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
                 .map(feed -> new GetFeedRes(feed, user.getRole()))
                 .toList();
 
