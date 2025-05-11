@@ -32,7 +32,7 @@ public class FeedController {
      * @param isAvailable
      * @param sortType
      */
-    @Operation(summary = "피드 상세 조회(Home)", description = "피드 상세 조회(Home): 로그인 필요")
+    @Operation(summary = "피드 상세 조회(Home)", description = "피드 전체 조회(Home)")
     @GetMapping
     public CommonResponse<GetHomeInfoRes> getHomeInfo(
         @ParameterObject Pageable pageable,
@@ -51,12 +51,15 @@ public class FeedController {
      * 피드 상세 조회 (Mypage)
      * @param userDetail 사용자 정보
      */
-    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 상세 조회(Mypage): 로그인 필요")
+    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 전체 조회(Mypage): 로그인 필요")
     @GetMapping("/mypage")
     public CommonResponse<GetMypageInfoRes> getMypageInfo(
         @Parameter(description = "사용자정보", required = true)
-        @AuthenticationPrincipal CustomUserDetails userDetail) {
-        return CommonResponse.success(feedService.getMypageInfo(userDetail.getUserId()));
+        @AuthenticationPrincipal CustomUserDetails userDetail,
+        @ParameterObject Pageable pageable,
+        @Parameter(description = "마지막 Feed Id")
+        @RequestParam(required = false) Long lastFeedId) {
+        return CommonResponse.success(feedService.getMypageInfo(userDetail.getUserId(), pageable, lastFeedId));
     }
 
     /**
