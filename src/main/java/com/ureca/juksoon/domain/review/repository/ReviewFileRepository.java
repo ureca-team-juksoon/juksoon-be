@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReviewFileRepository extends JpaRepository<ReviewFile, Long> {
-
     List<ReviewFile> findAllByReviewIds(List<Long> reviewIds);
+
+    List<ReviewFile> findAllByReviewId(Long reviewId);
+
+
 }

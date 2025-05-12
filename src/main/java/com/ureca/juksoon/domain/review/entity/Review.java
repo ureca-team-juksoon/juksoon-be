@@ -1,7 +1,11 @@
 package com.ureca.juksoon.domain.review.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
+import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
+import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
+import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
+import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,7 +48,8 @@ public class Review extends BaseEntity {
                 .build();
     }
 
-    // update
-
-
+    public void update(ReviewReq req){
+        this.title = req.getTitle();
+        this.content = req.getContent();
+    }
 }

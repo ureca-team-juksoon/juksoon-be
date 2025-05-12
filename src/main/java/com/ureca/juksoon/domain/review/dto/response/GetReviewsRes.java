@@ -10,7 +10,5 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class GetReviewsRes {
-    private Long id;
-    private String name;
     private List<ReviewWithFiles> reviews;
 }

@@ -1,9 +1,13 @@
 package com.ureca.juksoon.domain.review.service;
 
+import com.ureca.juksoon.domain.feed.entity.Feed;
+import com.ureca.juksoon.domain.feed.entity.FeedFile;
+import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.review.dto.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
 import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.GetReviewsRes;
+import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
 import com.ureca.juksoon.domain.review.entity.FileType;
 import com.ureca.juksoon.domain.review.entity.Review;
 import com.ureca.juksoon.domain.review.entity.ReviewFile;
@@ -12,6 +16,7 @@ import com.ureca.juksoon.domain.review.repository.ReviewRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
+import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.s3.FilePath;
 import com.ureca.juksoon.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.ureca.juksoon.global.response.ResultCode.REVIEW_NOT_FOUND;
+import static com.ureca.juksoon.global.response.ResultCode.USER_NOT_FOUNT;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +55,6 @@ public class ReviewService {
         Review review = Review.of(user, feed, req);
 
         Review saveReview = reviewRepository.save(review);
-
-        // 이미지 & 비디오: s3 업로드 및 DB 저장
         saveReviewFiles(req.getImages(), req.getVideo(), saveReview);
 
         return new CreateReviewRes(saveReview.getId());
@@ -75,7 +81,8 @@ public class ReviewService {
                     .map(List::of)
                     .orElse(List.of());
         }
-        
+
+        // 리뷰 작성자 id 받아오기
         List<Long> reviewIds = reviews.stream()
                 .map(Review::getId)
                 .toList();
@@ -99,17 +106,30 @@ public class ReviewService {
 
     /**
      * review 수정
+     * - TESTER만 가능 (OWNER는 X)
      */
-//    @Transactional
-//    public updateReviewRes updateReview(Long userId, Long feedId, ReviewReq request) {
-//    }
+    @Transactional
+    public ModifyReviewRes updateReview(Long userId, Long feedId, ReviewReq req) {
+        // review 정보 갱신, user가 작성한 리뷰 찾기
+        Review review = reviewRepository.findByFeedIdAndUserId(feedId, userId)
+                .orElseThrow(() -> new GlobalException(REVIEW_NOT_FOUND));
+        review.update(req);
+
+        // 기존 review 파일 S3에서 제거
+        List<ReviewFile> files = reviewFileRepository.findAllByReviewId(review.getId());
+        s3Service.deleteMultiFiles(files.stream().map(ReviewFile::getUrl).toList(), FilePath.REVIEW);
+        reviewFileRepository.deleteAll(files);
+
+        // 새로운 review 파일 정보 추가
+        saveReviewFiles(req.getImages(), req.getVideo(), review);
+
+        return new ModifyReviewRes();
+    }
 
 
     /**
      * review 삭제
      */
-//    @Transactional
-//    public
 
 
 
@@ -118,7 +138,7 @@ public class ReviewService {
      * - image나 video가 존재하면 저장
      */
     @Transactional
-    private void saveReviewFiles(List<MultipartFile> images, MultipartFile video, Review review) {
+    public void saveReviewFiles(List<MultipartFile> images, MultipartFile video, Review review) {
 
         List<ReviewFile> files = new ArrayList<>();
 

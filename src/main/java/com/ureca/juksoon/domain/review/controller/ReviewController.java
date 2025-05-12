@@ -33,7 +33,7 @@ public class ReviewController {
     }
 
     // update
-    @PostMapping
+    @PatchMapping
     public CommonResponse<?> updateReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
@@ -41,7 +41,6 @@ public class ReviewController {
 
         return CommonResponse.success(reviewService.updateReview(customUserDetails.getUserId(), feedId, request));
     }
-
 
 
     // delete
