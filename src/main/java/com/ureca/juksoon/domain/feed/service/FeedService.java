@@ -4,10 +4,8 @@ import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.dto.response.*;
 import com.ureca.juksoon.domain.feed.entity.*;
-import com.ureca.juksoon.domain.feed.repository.CustomFeedRepository;
 import com.ureca.juksoon.domain.feed.repository.FeedFileRepository;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
-import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
@@ -38,9 +36,7 @@ public class FeedService {
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
-    private final ReservationRepository reservationRepository;
     private final FeedRepository feedRepository;
-    private final CustomFeedRepository customFeedRepository;
     private final FeedFileRepository feedFileRepository;
 
     /**
@@ -48,7 +44,7 @@ public class FeedService {
      */
     @Transactional(readOnly = true)
     public GetHomeInfoRes getHomeInfo(Pageable pageable, String keyword, Category category, boolean isAvailable, SortType sortType) {
-        return new GetHomeInfoRes(customFeedRepository.findAllByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
+        return new GetHomeInfoRes(feedRepository.findAllByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
             .map(feed -> new GetFeedRes(feed, null))
             .toList());
     }
@@ -62,7 +58,7 @@ public class FeedService {
 
         if(user.getRole() == UserRole.ROLE_TESTER) { // 일반 사용자
             // Reservation 기반 조회
-            List<GetFeedRes> feedResList = customFeedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
+            List<GetFeedRes> feedResList = feedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
                 .map(f -> new GetFeedRes(f, user.getRole()))
                 .toList();
 
@@ -71,7 +67,7 @@ public class FeedService {
             Store store = findStoreByUserId(user.getId());
 
             // store 기반 조회
-            List<GetFeedRes> feedResList = customFeedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
+            List<GetFeedRes> feedResList = feedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
                 .map(feed -> new GetFeedRes(feed, user.getRole()))
                 .toList();
 
