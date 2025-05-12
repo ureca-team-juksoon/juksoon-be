@@ -30,9 +30,13 @@ public enum ResultCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, 3001, "해당 가게를 찾을 수 없습니다."),
 
     // 피드 4000번대
-    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, 4000, "피드 정보를 찾을 수 없습니다.")
-    ;
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, 4000, "피드 정보를 찾을 수 없습니다."),
 
+    // 예약 5000번대
+    RESERVATION_NOT_OPENED(HttpStatus.FORBIDDEN, 5000, "예약 가능시간이 아닙니다."),
+    RESERVATION_IS_FULL(HttpStatus.FORBIDDEN, 5001, "예약 인원이 가득 찼습니다."),
+    RESERVATION_DUPLE(HttpStatus.FORBIDDEN, 5002, "중복 예약 입니다."),
+    ;
     private final HttpStatus status;
     private final int code;
     private final String message;

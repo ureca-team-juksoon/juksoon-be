@@ -22,9 +22,15 @@ public class QReservation extends EntityPathBase<Reservation> {
 
     public static final QReservation reservation = new QReservation("reservation");
 
+    public final DateTimePath<java.time.LocalDateTime> attemptedAt = createDateTime("attemptedAt", java.time.LocalDateTime.class);
+
+    public final DateTimePath<java.time.LocalDateTime> canceledAt = createDateTime("canceledAt", java.time.LocalDateTime.class);
+
     public final com.ureca.juksoon.domain.feed.entity.QFeed feed;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final EnumPath<ReservationAttemptState> state = createEnum("state", ReservationAttemptState.class);
 
     public final com.ureca.juksoon.domain.user.entity.QUser user;
 

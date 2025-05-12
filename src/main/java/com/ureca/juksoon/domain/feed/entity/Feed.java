@@ -84,4 +84,8 @@ public class Feed extends BaseEntity {
         this.category = req.getCategory();
         this.price = req.getPrice();
     }
+
+    public void increaseRegisterUser() {
+        this.registeredUser++;
+    }
 }
