@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.feed.dto.responce;
+package com.ureca.juksoon.domain.feed.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.juksoon.domain.feed.entity.Feed;

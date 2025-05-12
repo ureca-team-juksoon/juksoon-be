@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.feed.dto.responce;
+package com.ureca.juksoon.domain.feed.dto.response;
 
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
