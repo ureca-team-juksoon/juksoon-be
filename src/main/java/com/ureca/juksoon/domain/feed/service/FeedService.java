@@ -46,6 +46,7 @@ public class FeedService {
     /**
      * Home 조회
      */
+    @Transactional(readOnly = true)
     public GetHomeInfoRes getHomeInfo(Pageable pageable, String keyword, Category category, boolean isAvailable, SortType sortType) {
         return new GetHomeInfoRes(customFeedRepository.findAllByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
             .map(feed -> new GetFeedRes(feed, null))
@@ -55,6 +56,7 @@ public class FeedService {
     /**
      * Mypage 조회
      */
+    @Transactional(readOnly = true)
     public GetMypageInfoRes getMypageInfo(Long userId, Pageable pageable, Long lastFeedId) {
         User user = findUser(userId);
 
@@ -83,6 +85,7 @@ public class FeedService {
     /**
      * Feed 단일 조회
      */
+    @Transactional(readOnly = true)
     public GetFeedDetailRes getFeedDetail(Long feedId) {
         Feed feed = findFeed(feedId);
         List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
