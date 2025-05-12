@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.feed.dto.responce;
+package com.ureca.juksoon.domain.feed.dto.response;
 
 import com.ureca.juksoon.domain.feed.entity.Category;
 import com.ureca.juksoon.domain.feed.entity.Feed;

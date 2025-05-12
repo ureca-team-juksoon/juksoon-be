@@ -2,7 +2,7 @@ package com.ureca.juksoon.domain.feed.controller;
 
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
-import com.ureca.juksoon.domain.feed.dto.responce.*;
+import com.ureca.juksoon.domain.feed.dto.response.*;
 import com.ureca.juksoon.domain.feed.entity.Category;
 import com.ureca.juksoon.domain.feed.entity.SortType;
 import com.ureca.juksoon.domain.feed.service.FeedService;
