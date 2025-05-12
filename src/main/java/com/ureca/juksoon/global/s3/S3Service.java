@@ -1,6 +1,7 @@
 package com.ureca.juksoon.global.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ureca.juksoon.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.ureca.juksoon.global.response.ResultCode.*;
 
@@ -60,17 +63,16 @@ public class S3Service {
         return amazonS3.getUrl(bucketName, fileName).toString();
     }
 
-    public void deleteFile(String fileUrl, FilePath filePath) {
-        // 파일명 추출 (Ex. path/to/file.jpg)
-        String fileName = extractFileName(fileUrl, filePath);
+    public void deleteMultiFiles(List<String> fileUrls, FilePath filePath) {
+        List<DeleteObjectsRequest.KeyVersion> keys = fileUrls.stream()
+            .map(url -> extractFileName(url, filePath))  // Key (파일명) 추출
+            .map(DeleteObjectsRequest.KeyVersion::new)
+            .collect(Collectors.toList());
 
-        // 파일이 존재하지 않으면 예외 발생
-        if (fileName.isBlank() || !amazonS3.doesObjectExist(bucketName, fileName)) {
-            throw new GlobalException(NOT_FOUND_FILE);
-        }
+        DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest(bucketName).withKeys(keys);
 
         try {
-            amazonS3.deleteObject(bucketName, fileName);
+            amazonS3.deleteObjects(deleteRequest);
         } catch (Exception e) {
             log.error("file delte fail: {}", e.getMessage());
             throw new GlobalException(SYSTEM_ERROR);

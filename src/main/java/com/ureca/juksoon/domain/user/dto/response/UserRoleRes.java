@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.user.dto.responce;
+package com.ureca.juksoon.domain.user.dto.response;
 
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import lombok.AllArgsConstructor;

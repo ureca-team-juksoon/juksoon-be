@@ -18,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.ureca.juksoon.global.response.ResultCode.STORE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +54,7 @@ public class StoreService {
     @Transactional(readOnly = true)
     public CommonResponse<StoreReadRes> readStore(Long userId) {
 
-        Store findStore = storeRepository.findByUserId(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
+        Store findStore = findStoreByUserId(userId);
 
         StoreReadRes response = toDto(findStore);
 
@@ -61,18 +64,24 @@ public class StoreService {
     @Transactional
     public CommonResponse<StoreReadRes> updateStore(Long userId, StoreUpdateReq request, MultipartFile image) throws UnsupportedEncodingException {
 
-        Store findStore = storeRepository.findByUserId(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.STORE_NOT_FOUND));
+        Store findStore = findStoreByUserId(userId);
+
         String logoImageURL = findStore.getLogoImageURL();
         //이전 파일 삭제 및 재업로드
         if (image != null && !image.isEmpty()) {
-            s3Service.deleteFile(findStore.getLogoImageURL(), FilePath.STORE);
+            s3Service.deleteMultiFiles(new ArrayList<>(List.of(findStore.getLogoImageURL())), FilePath.STORE);
             logoImageURL = s3Service.uploadFile(image, FilePath.STORE);
         }
 
         findStore.updateStore(request.getName(), request.getAddress(), request.getDescription(), logoImageURL);
 
         return CommonResponse.success(null);
+    }
+
+    private Store findStoreByUserId(Long userId) {
+        Store store = storeRepository.findByUserId(userId);
+        if(store == null) throw new GlobalException(STORE_NOT_FOUND);
+        return store;
     }
 
     private StoreReadRes toDto(Store store) {
