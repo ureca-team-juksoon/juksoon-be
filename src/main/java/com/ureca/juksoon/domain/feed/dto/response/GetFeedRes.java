@@ -20,6 +20,8 @@ public class GetFeedRes {
     private Integer price;
     @Schema(description = "가게 이름", example = "빽다방 선릉중앙점") // Optional
     private String storeName;
+    @Schema(description = "가게 로고 Url", example = "링크")
+    private String logoImageURL;
     @Schema(description = "최대 신청 인원", example = "20")
     private int maxUser;
     @Schema(description = "현재 신청 인원", example = "5")
@@ -39,6 +41,7 @@ public class GetFeedRes {
         this.startAt = feed.getStartAt();
         this.expiredAt = feed.getExpiredAt();
         this.status = feed.getStatus();
+        this.logoImageURL = feed.getStore().getLogoImageURL();
 
         if(role != UserRole.ROLE_OWNER) { // 사장은 표기X
             this.price = feed.getPrice();
