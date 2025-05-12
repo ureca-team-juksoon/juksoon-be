@@ -18,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +39,7 @@ public class FeedService {
     private final StoreRepository storeRepository;
     private final FeedRepository feedRepository;
     private final FeedFileRepository feedFileRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * Home 조회
@@ -111,6 +113,7 @@ public class FeedService {
         Feed feed = Feed.of(req, user, store);
 
         Feed savedFeed = feedRepository.save(feed);
+//        @TransactionalEventListener로 트랜잭션 실행 후 레디스 실행
 
         // 이미지 & 비디오: s3 업로드 및 DB 저장
         saveFeedFiles(req.getImages(), req.getVideo(), savedFeed);
