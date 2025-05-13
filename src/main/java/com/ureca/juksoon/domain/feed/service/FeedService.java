@@ -181,8 +181,7 @@ public class FeedService {
         if(video != null && !video.isEmpty()) { // VIDEO가 존재하면 저장
             fileList.add(FeedFile.of(feed, s3Service.uploadFile(video, FilePath.Feed), FileType.VIDEO));
         }
-
-        feedFileRepository.saveAll(fileList);
+        feedFileRepository.saveAllFeedFiles(fileList);
     }
 
     private void checkAuthority(User user, Feed feed) {

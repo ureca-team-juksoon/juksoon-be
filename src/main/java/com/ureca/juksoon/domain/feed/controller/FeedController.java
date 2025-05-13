@@ -32,16 +32,16 @@ public class FeedController {
      * @param isAvailable
      * @param sortType
      */
-    @Operation(summary = "피드 상세 조회(Home)", description = "피드 전체 조회(Home)")
+    @Operation(summary = "피드 상세 조회(Home)", description = "피드 전체 조회(Home) : sort는 사용X")
     @GetMapping
     public CommonResponse<GetHomeInfoRes> getHomeInfo(
         @ParameterObject Pageable pageable,
-        @Parameter(description = "검색어")
+        @Parameter(description = "검색어", required = false)
         @RequestParam(required = false) String keyword,
-        @Parameter(description = "카테고리")
+        @Parameter(description = "카테고리", required = false)
         @RequestParam(required = false) Category category,
-        @Parameter(description = "신청 가능 여부")
-        @RequestParam(required = false) boolean isAvailable,
+        @Parameter(description = "신청 가능 여부", required = true)
+        @RequestParam boolean isAvailable,
         @Parameter(description = "피드 순서", required = true)
         @RequestParam SortType sortType) {
         return CommonResponse.success(feedService.getHomeInfo(pageable, keyword, category, isAvailable, sortType));
@@ -51,7 +51,7 @@ public class FeedController {
      * 피드 상세 조회 (Mypage)
      * @param userDetail 사용자 정보
      */
-    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 전체 조회(Mypage): 로그인 필요")
+    @Operation(summary = "피드 전체 조회(Mypage)", description = "피드 전체 조회(Mypage):로그인 필요 (size, sort 미사용)")
     @GetMapping("/mypage")
     public CommonResponse<GetMypageInfoRes> getMypageInfo(
         @Parameter(description = "사용자정보", required = true)
@@ -66,7 +66,7 @@ public class FeedController {
      * 피드 단일 조회
      * @param feedId 피드 id
      */
-    @Operation(summary = "피드 상세 조회(Mypage)", description = "피드 상세 조회")
+    @Operation(summary = "피드 상세 조회", description = "피드 상세 조회")
     @GetMapping("/{feedId}")
     public CommonResponse<GetFeedDetailRes> getFeedDetail(
         @Parameter(description = "피드 id", required = true)
