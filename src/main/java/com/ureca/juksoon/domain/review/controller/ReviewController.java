@@ -21,6 +21,7 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
             @PathVariable("feed_id") Long feedId){
+
         return CommonResponse.success(reviewService.createReview(customUserDetails.getUserId(), feedId, request));
     }
 
@@ -29,6 +30,7 @@ public class ReviewController {
     public CommonResponse<?> getReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("feed_id") Long feedId){
+
         return CommonResponse.success(reviewService.getReviews(customUserDetails.getUserId(), customUserDetails.getUserRole(), feedId));
     }
 
@@ -42,7 +44,12 @@ public class ReviewController {
         return CommonResponse.success(reviewService.updateReview(customUserDetails.getUserId(), feedId, request));
     }
 
-
     // delete
+    @DeleteMapping
+    public CommonResponse<?> deleteReview(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("feed_id") Long feedId) {
+        return CommonResponse.success(reviewService.deleteReview(customUserDetails.getUserId(), feedId));
+    }
 
 }

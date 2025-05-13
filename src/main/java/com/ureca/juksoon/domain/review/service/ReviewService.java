@@ -6,6 +6,7 @@ import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.review.dto.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
 import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
+import com.ureca.juksoon.domain.review.dto.response.DeleteReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.GetReviewsRes;
 import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
 import com.ureca.juksoon.domain.review.entity.FileType;
@@ -130,8 +131,27 @@ public class ReviewService {
     /**
      * review 삭제
      */
+    @Transactional
+    public DeleteReviewRes deleteReview(Long userId, Long feedId) {
+        // user가 작성한 리뷰 찾기
+        Review review = reviewRepository.findByFeedIdAndUserId(feedId, userId)
+                .orElseThrow(() -> new GlobalException(REVIEW_NOT_FOUND));
 
+        // 리뷰에 연결딘 파일 찾기
+        List<ReviewFile> files = reviewFileRepository.findAllByReviewId(review.getId());
 
+        // S3에서 파일 데이터 삭제
+        s3Service.deleteMultiFiles(files.stream().map(ReviewFile::getUrl).toList(), FilePath.REVIEW);
+
+        // review file 데이터 삭제
+        // reviewFileRepository.deleteAllInBatch(files);
+        reviewFileRepository.deleteAll(files);
+
+        // review 데이터 삭제
+        reviewRepository.delete(review);
+
+        return new DeleteReviewRes(review);
+    }
 
     /**
      * review file 저장
