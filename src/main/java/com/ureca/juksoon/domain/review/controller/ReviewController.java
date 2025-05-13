@@ -49,7 +49,7 @@ public class ReviewController {
     public CommonResponse<?> deleteReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("feed_id") Long feedId) {
+
         return CommonResponse.success(reviewService.deleteReview(customUserDetails.getUserId(), feedId));
     }
-
 }

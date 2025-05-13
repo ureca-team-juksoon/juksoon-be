@@ -1,7 +1,6 @@
 package com.ureca.juksoon.domain.review.service;
 
 import com.ureca.juksoon.domain.feed.entity.Feed;
-import com.ureca.juksoon.domain.feed.entity.FeedFile;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.review.dto.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
@@ -21,6 +20,7 @@ import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.s3.FilePath;
 import com.ureca.juksoon.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import static com.ureca.juksoon.global.response.ResultCode.REVIEW_NOT_FOUND;
 import static com.ureca.juksoon.global.response.ResultCode.USER_NOT_FOUNT;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -69,12 +71,13 @@ public class ReviewService {
      */
     public GetReviewsRes getReviews(Long userId, UserRole userRole, Long feedId) {
 
+        log.info("사용자 권한: {}", userRole);
+
         // 리뷰에 해당하는 파일들 모두 조회
-        List<Review> reviews = null;
+        List<Review> reviews = List.of();
 
         if(userRole.equals(UserRole.ROLE_OWNER)){
             reviews = reviewRepository.findAllByFeedId(feedId);
-
         }
 
         if(userRole.equals(UserRole.ROLE_TESTER)){
@@ -89,7 +92,7 @@ public class ReviewService {
                 .toList();
 
         // 리뷰에 연결된 파일 전부 조회
-        List<ReviewFile> reviewFiles = reviewFileRepository.findAllByReviewIds(reviewIds);
+        List<ReviewFile> reviewFiles = reviewFileRepository.findAllByReview_IdIn(reviewIds);
 
         // 리뷰 ID 기준으로 파일 리뷰-파일 연결
         Map<Long, List<ReviewFile>> fileMap = reviewFiles.stream()
