@@ -175,6 +175,11 @@ public class FeedService {
         return new ModifyFeedRes();
     }
 
+    @Transactional
+    public void deactivateFeedByScheduler() {
+        feedRepository.updateAllStatus();
+    }
+
     private void saveFeedFiles(List<MultipartFile> images, MultipartFile video, Feed feed) {
         List<FeedFile> fileList = new ArrayList<>();
 

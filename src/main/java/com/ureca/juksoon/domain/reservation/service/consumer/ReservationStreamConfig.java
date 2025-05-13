@@ -1,8 +1,8 @@
 package com.ureca.juksoon.domain.reservation.service.consumer;
 
-import io.lettuce.core.RedisException;
 import java.time.Duration;
 
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -40,9 +40,9 @@ public class ReservationStreamConfig {
         StreamMessageListenerContainer<String, MapRecord<String, String, String>> container = container(cf, getOptions());
         initConsumerGroup();
 
-        container.receive(                //컨테이너 스트림 정보, 설정 세팅
-                Consumer.from("reservation", "reservationConsumer"),
-                StreamOffset.create("feed:stream", ReadOffset.lastConsumed()),
+        container.receive( //컨테이너 스트림 정보, 설정 세팅
+                Consumer.from(GROUP_NAME, "reservationConsumer"),
+                StreamOffset.create(STREAM_KEY, ReadOffset.lastConsumed()),
                 reservationConsumer
         );
 
@@ -64,17 +64,15 @@ public class ReservationStreamConfig {
 
 
     private void initConsumerGroup() {
-        StreamOperations<String, ?, ?> streamOperations = redisTemplate.opsForStream();
+        StreamOperations<String, String, String> ops = redisTemplate.opsForStream();
+
+        ops.add(STREAM_KEY, Collections.singletonMap("init", "1"));
 
         try {
-            streamOperations.destroyGroup(STREAM_KEY, GROUP_NAME);
-        } catch (RedisException e) {
-            log.info("정상적으로 삭제됨");
-        }
+            ops.destroyGroup(STREAM_KEY, GROUP_NAME);
+        } catch (Exception ignore) { }
 
-        streamOperations.createGroup(STREAM_KEY,
-                ReadOffset.lastConsumed(),
-                GROUP_NAME);
+        ops.createGroup(STREAM_KEY, ReadOffset.latest(), GROUP_NAME);
     }
 
 

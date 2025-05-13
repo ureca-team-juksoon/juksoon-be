@@ -15,10 +15,10 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class FeedDeactivateService {
-    private final FeedRepository feedRepository;
+    private final FeedService feedService;
 
     @Scheduled(cron = "0 59 23 * * * ")
     public void deactivateFeedProcess(){
-        feedRepository.updateAllStatus();
+        feedService.deactivateFeedByScheduler();
     }
 }

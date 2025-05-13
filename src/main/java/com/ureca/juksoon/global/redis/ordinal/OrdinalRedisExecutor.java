@@ -37,21 +37,21 @@ public class OrdinalRedisExecutor<T> {
         return objectMapper.convertValue(valueMap, targetClazz);
     }
 
-    //Key와 values를 받아 저장
-    public void hset(String key, Object values){
-        Map<String, String> stringMap = objectMapper.convertValue(values, new TypeReference<Map<String, String>>() {});
-        stringMap.forEach((field, value) -> {
+    public void hset(String key, Object values) {
+        Map<String, Object> rawMap = objectMapper.convertValue(values, new TypeReference<>() {});
+        Map<String, String> stringMap = new HashMap<>();
+        rawMap.forEach((field, val) -> {
             try {
-                stringMap.put(field, objectMapper.writeValueAsString(value));
+                stringMap.put(field, objectMapper.writeValueAsString(val));
             } catch (JsonProcessingException e) {
-                stringMap.put(field, value);
+                stringMap.put(field, val != null ? val.toString() : null);
             }
         });
         redisTemplate.opsForHash().putAll(key, stringMap);
     }
 
     public void rem(String key, Long userId){
-        redisTemplate.opsForSet().remove(key, userId);
+        redisTemplate.opsForSet().remove(key, userId.toString());
     }
 
     public void setExpiredTime(String key, String endTime) {

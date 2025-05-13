@@ -53,6 +53,5 @@ local result = cjson.encode({
     feedId = feedId,
     userId = userId,
     currentTicketCount = currentTicketCount,
-    maxTicketCount = maxTicketCount
 })
 return result

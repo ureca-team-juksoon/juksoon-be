@@ -27,7 +27,6 @@ public class ReservationConsumer implements StreamListener<String, MapRecord<Str
         Long feedId = Long.valueOf(body.get("feedId"));
         Long userId = Long.valueOf(body.get("userId"));
         Integer currentTicketCount = Integer.parseInt(body.get("currentTicketCount"));
-        Integer maxTicketCount = Integer.parseInt(body.get("maxTicketCount"));
 
         reservationConsumerService.processReservationMessage(userId, feedId, currentTicketCount);
 
