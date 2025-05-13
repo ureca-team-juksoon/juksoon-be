@@ -21,6 +21,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
     defer-datasource-initialization: true
     sql:
@@ -96,6 +100,12 @@ cloud:
     stack:
       auto: false
 #<====================================================
+
+logging:
+  level:
+    org:
+      springframework:
+        jdbc: debug
 
 server:
   port: 8080

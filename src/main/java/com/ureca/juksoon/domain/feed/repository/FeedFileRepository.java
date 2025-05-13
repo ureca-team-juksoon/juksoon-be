@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface FeedFileRepository extends JpaRepository<FeedFile, Long> {
+public interface FeedFileRepository extends JpaRepository<FeedFile, Long>, FeedFileJdbcRepository {
     List<FeedFile> findAllByFeed(Feed feed);
 }
