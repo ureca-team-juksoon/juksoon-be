@@ -13,4 +13,5 @@ public interface CustomFeedRepository {
     List<Feed> findAllByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword);
     List<Feed> findAllByUserOrderByFeedIdDesc(Pageable pageable, User user, Long lastFeedId);
     List<Feed> findAllByStoreOrderByFeedIdDesc(Pageable pageable, Store store, Long lastFeedId);
+    void updateAllStatus();
 }

@@ -3,7 +3,7 @@ package com.ureca.juksoon.domain.reservation.service.publisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.juksoon.domain.reservation.dto.ReservationReq;
-import com.ureca.juksoon.domain.reservation.service.publisher.executor.LuaScriptExecutor;
+import com.ureca.juksoon.global.redis.lua.LuaScriptExecutor;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.response.ResultCode;
 import java.util.List;
@@ -25,7 +25,6 @@ public class TicketPublisher {
     private final ObjectMapper objectMapper;
 
     public Ticket publish(Long userId, ReservationReq reservationReq) {
-
         String rawJsonTicket = luaScriptExecutor.execute(   //티켓 발급. => redis 플로우 실행
                 TICKET_PUBLISHER_LUA_SCRIPT,
                 getKeys(reservationReq.getFeedId()),

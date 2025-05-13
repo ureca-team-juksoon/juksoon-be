@@ -2,7 +2,7 @@
 --[[
 티켓 퍼블리셔 구조
 
-feed:feedId:meta {  hash
+{feedId}:meta {  hash
     feedId : {feedId}                         //피드 아이디
     currentTicketCount : {ticketNum}          //현재 티켓 번호
     maxTicketCount : {maxTicketNum}           //최대 티켓 번호
@@ -26,9 +26,10 @@ end
 local maxTicketCount = tonumber(redis.call("HGET", metaFeedId, "maxTicketCount"))
 local currentTicketCount = tonumber(redis.call("HGET", metaFeedId, "currentTicketCount") or "0")
 local endTime = tonumber(redis.call("HGET", metaFeedId, "endTime"))
+local nowTs = tonumber(redis.call("TIME")[1])
 
 -- 3) 중복 신청 방지
-if redis.call("HEXISTS", bufferFeedId, "userId")==1 then
+if redis.call("SISMEMBER", bufferFeedId, userId)==1 then
   return cjson.encode({
       err = "이미 신청하셨습니다" })
 end
@@ -45,7 +46,7 @@ currentTicketCount = currentTicketCount + 1
 redis.call("HSET", metaFeedId, "currentTicketCount", currentTicketCount) -- 현재 티켓 수를 가져옴
 
 -- 6) 현재 신청한 피드-사용자 저장 후에 스트림으로 티켓을 받을 시 파쇄
-redis.call("HSET", bufferFeedId, "userId", userId)
+redis.call("SADD", bufferFeedId, userId)
 
 -- 7) 성공 시 티켓 반환 { feedId, userId, currentTicketCount, maxTicketCount} JSON 반환(티켓 반환)
 local result = cjson.encode({

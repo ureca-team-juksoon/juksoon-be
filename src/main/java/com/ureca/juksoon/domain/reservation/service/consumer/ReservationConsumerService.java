@@ -6,7 +6,11 @@ import com.ureca.juksoon.domain.reservation.entity.Reservation;
 import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
 import java.util.Optional;
+
+import com.ureca.juksoon.global.event.event.MessageConsumeEvent;
+import com.ureca.juksoon.global.redis.ordinal.OrdinalRedisExecutor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ReservationConsumerService {
+    private static final String ALREADY_EXISTS_SET = ":buffer";
+
     private final ReservationConsumerExceptionHandler reservationConsumerExceptionHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final FeedRepository feedRepository;
@@ -34,9 +41,16 @@ public class ReservationConsumerService {
             feed.get().updateRegisteredUser(currentTicketCount);
             Reservation newReservation = makeNewReservation(userId, feedId);
             reservationRepository.save(newReservation);
+            makeCreationFeedEvent(feed.get(), userId);
         }
-
         reservationConsumerExceptionHandler.handleErrorTicket(userId, feedId, currentTicketCount);
+    }
+
+    private void makeCreationFeedEvent(Feed feed, Long userId) {
+        applicationEventPublisher.publishEvent(new MessageConsumeEvent(
+                feed.getId() + ALREADY_EXISTS_SET,
+                userId
+        ));
     }
 
     private Reservation makeNewReservation(Long userId, Long feedId) {

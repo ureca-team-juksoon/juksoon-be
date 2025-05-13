@@ -72,7 +72,9 @@ public class ReservationStreamConfig {
             log.info("정상적으로 삭제됨");
         }
 
-        streamOperations.createGroup(STREAM_KEY, ReadOffset.lastConsumed(), GROUP_NAME);
+        streamOperations.createGroup(STREAM_KEY,
+                ReadOffset.lastConsumed(),
+                GROUP_NAME);
     }
 
 

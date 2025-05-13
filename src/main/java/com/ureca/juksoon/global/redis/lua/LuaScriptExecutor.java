@@ -1,6 +1,6 @@
-package com.ureca.juksoon.domain.reservation.service.publisher.executor;
+package com.ureca.juksoon.global.redis.lua;
 
-import com.ureca.juksoon.domain.reservation.service.factory.RedisLuaScriptFactory;
+import com.ureca.juksoon.global.redis.lua.RedisLuaScriptFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

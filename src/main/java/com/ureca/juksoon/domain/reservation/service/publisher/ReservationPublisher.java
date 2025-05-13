@@ -25,9 +25,7 @@ public class ReservationPublisher {
 
     public Ticket publishTicket(Long userId, ReservationReq reservationReq) {
         Ticket ticket = ticketPublisher.publish(userId, reservationReq);   //티켓 발행
-        if(!hasErr(ticket)) {  //에러 시 티켓 바로 반환(err만 채워져 있음)
-            return ticket;
-        }
+        if(!hasErr(ticket)) return ticket; //에러 시 티켓 바로 반환(err만 채워져 있음)
 
         sendRedisStreamEvent(ticket);   //레디스 스트림 보내기
         return ticket;

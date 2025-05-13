@@ -2,7 +2,7 @@
 # SPRING==============================================>
 spring:
   config:
-    import: optional:dotenv:.env
+    import: optional:dotenv:../../../.env
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

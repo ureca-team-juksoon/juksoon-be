@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.reservation.service.factory;
+package com.ureca.juksoon.global.redis.lua;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
