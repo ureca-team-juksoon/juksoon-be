@@ -36,14 +36,14 @@ public class FeedController {
     @GetMapping
     public CommonResponse<GetHomeInfoRes> getHomeInfo(
         @ParameterObject Pageable pageable,
-        @Parameter(description = "검색어", required = false)
+        @Parameter(description = "검색어")
         @RequestParam(required = false) String keyword,
-        @Parameter(description = "카테고리", required = false)
+        @Parameter(description = "카테고리")
         @RequestParam(required = false) Category category,
-        @Parameter(description = "신청 가능 여부", required = true)
-        @RequestParam boolean isAvailable,
-        @Parameter(description = "피드 순서", required = true)
-        @RequestParam SortType sortType) {
+        @Parameter(description = "신청 가능 여부")
+        @RequestParam(required = false, defaultValue = "true") boolean isAvailable,
+        @Parameter(description = "피드 순서")
+        @RequestParam(required = false, defaultValue = "POPULAR") SortType sortType) {
         return CommonResponse.success(feedService.getHomeInfo(pageable, keyword, category, isAvailable, sortType));
     }
 
