@@ -48,11 +48,13 @@ public class PessimisticReservationService {
         return CommonResponse.success("reservation succeeded");
     }
 
-    public CommonResponse<?> cancelReservation(Long feedId, Long userId) {
+    @Transactional
+    public CommonResponse<?> cancelReservation(Long reservationId) {
+
 
         LocalDateTime requestTime = LocalDateTime.now();
 
-        Reservation findReservation = findReservation(userId);
+        Reservation findReservation = findReservation(reservationId);
 
         checkReservationCancelValidation(findReservation, requestTime);
 
@@ -60,7 +62,7 @@ public class PessimisticReservationService {
         findReservation.cancelReservation(requestTime);
 
         // 비관락 시작
-        Feed findFeed = findFeedForUpdate(feedId);
+        Feed findFeed = findFeedForUpdate(findReservation.getFeed().getId());
 
         findFeed.decreaseRegisterUser();
 
@@ -121,8 +123,8 @@ public class PessimisticReservationService {
         }
     }
 
-    private Reservation findReservation(Long userId) {
-        return reservationRepository.findByUser_Id(userId)
+    private Reservation findReservation(Long reservationId) {
+        return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GlobalException(ResultCode.RESERVATION_NOT_FOUND));
     }
 

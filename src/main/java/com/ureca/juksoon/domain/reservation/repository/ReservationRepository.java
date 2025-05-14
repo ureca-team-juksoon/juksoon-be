@@ -14,6 +14,4 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findAllByStateAndFeed_Id(ReservationAttemptState state, Long feedId);
 
     boolean existsReservationByUserAndStateAndFeed(User user, ReservationAttemptState state, Feed feed);
-
-    Optional<Reservation> findByUser_Id(Long userId);
 }
