@@ -34,7 +34,7 @@ public class GetFeedRes {
     @Schema(description = "상태", example = "OPEN")
     private Status status;
 
-    public GetFeedRes(Feed feed, UserRole role) {
+    public GetFeedRes(Feed feed) {
         this.feedId = feed.getId();
         this.title = feed.getTitle();
         this.maxUser = feed.getMaxUser();
@@ -43,10 +43,7 @@ public class GetFeedRes {
         this.expiredAt = feed.getExpiredAt();
         this.status = feed.getStatus();
         this.logoImageURL = feed.getStore().getLogoImageURL();
-
-        if(role != UserRole.ROLE_OWNER) { // 사장은 표기X
-            this.price = feed.getPrice();
-            this.storeName = feed.getStore().getName();
-        }
+        this.price = feed.getPrice();
+        this.storeName = feed.getStore().getName();
     }
 }

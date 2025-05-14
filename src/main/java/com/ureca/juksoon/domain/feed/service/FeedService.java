@@ -47,8 +47,8 @@ public class FeedService {
     public GetHomeInfoRes getHomeInfo(Pageable pageable, String keyword, Category category, boolean isAvailable, SortType sortType) {
         long maxPage = (feedRepository.countAllByFiltering(isAvailable, category, keyword) + pageable.getPageSize() - 1) / pageable.getPageSize();
 
-        return new GetHomeInfoRes(maxPage, feedRepository.findPageByFiltering(pageable, isAvailable, sortType, category, keyword).stream()            .map(feed -> new GetFeedRes(feed, null))
-            .toList());
+        return new GetHomeInfoRes(maxPage, feedRepository.findPageByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
+            .map(GetFeedRes::new).toList());
     }
 
     /**
@@ -61,8 +61,7 @@ public class FeedService {
         if(user.getRole() == UserRole.ROLE_TESTER) { // 일반 사용자
             // Reservation 기반 조회
             List<GetFeedRes> feedResList = new ArrayList<>(feedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
-                .map(f -> new GetFeedRes(f, user.getRole()))
-                .toList());
+                .map(GetFeedRes::new).toList());
 
             // 다음 페이지 확인 및 반환값 조정
             boolean hasNextPage = (feedResList.size() > pageable.getPageSize());
@@ -74,8 +73,7 @@ public class FeedService {
 
             // store 기반 조회
             List<GetFeedRes> feedResList = new ArrayList<>(feedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
-                .map(feed -> new GetFeedRes(feed, user.getRole()))
-                .toList());
+                .map(GetFeedRes::new).toList());
 
             // 다음 페이지 확인 및 반환값 조정
             boolean hasNextPage = (feedResList.size() > pageable.getPageSize());
