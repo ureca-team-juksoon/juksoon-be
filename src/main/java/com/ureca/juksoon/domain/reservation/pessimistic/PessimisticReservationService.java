@@ -38,8 +38,8 @@ public class PessimisticReservationService {
         Feed findFeed = findFeedForUpdate(feedId);
         LocalDateTime lockingTime = LocalDateTime.now();
 
-        log.info("lockingTime = {}", lockingTime);
-        log.info("requestTime = {}", requestTime);
+        log.info("userId = {} requestTime = {}", userId, requestTime);
+        log.info("userId = {} lockingTime = {}", userId, lockingTime);
 
         Reservation reservation;
 
@@ -47,14 +47,14 @@ public class PessimisticReservationService {
         // (findFeed.getStatus() != Status.OPEN || findFeed.getExpiredAt().isBefore(requestTime))
         // expiredAt 이 LocalDateTime 으로 변경되면 사용 가능
         if (findFeed.getStatus() != Status.OPEN) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL, requestTime);
+            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
             reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
         }
 
         // 예약 가능 인원 체크
         if (findFeed.getMaxUser() <= findFeed.getRegisteredUser()) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL, requestTime);
+            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_FULL, requestTime);
             reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_IS_FULL);
         }
@@ -63,7 +63,7 @@ public class PessimisticReservationService {
         boolean isExist = reservationRepository.existsReservationByUserAndState(findUser, ReservationAttemptState.SUCCESS);
 
         if (isExist) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL, requestTime);
+            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_DUPLE, requestTime);
             reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_DUPLE);
         }
