@@ -16,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Slf4j
 @Service
@@ -51,7 +53,7 @@ public class PessimisticReservationService {
     }
 
     private void checkValidation(Feed findFeed, User findUser, LocalDateTime requestTime) {
-        // 피드 상태 체크
+        // 피드 상태 체크 & 만료 시간 체크
         checkReservationState(findFeed, findUser, requestTime);
 
         // 예약 가능 인원 체크
@@ -62,7 +64,12 @@ public class PessimisticReservationService {
     }
 
     private void checkReservationState(Feed findFeed, User findUser, LocalDateTime requestTime) {
-        if (findFeed.getStatus() != Status.OPEN) {
+        String feedExpiredAt = findFeed.getExpiredAt();
+        LocalDate localDate = LocalDate.parse(feedExpiredAt);
+        LocalTime localTime = LocalTime.of(0, 0, 0, 0);
+        LocalDateTime expiredAt = LocalDateTime.of(localDate, localTime);
+
+        if (findFeed.getStatus() != Status.OPEN || expiredAt.isAfter(LocalDateTime.now())) {
             Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
             reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
