@@ -60,7 +60,7 @@ public class PessimisticReservationService {
         }
 
         // 중복 예약 예외 처리
-        boolean isExist = reservationRepository.existsReservationByUserAndState(findUser, ReservationAttemptState.SUCCESS);
+        boolean isExist = reservationRepository.existsReservationByUserAndStateAndFeed(findUser, ReservationAttemptState.SUCCESS, findFeed);
 
         if (isExist) {
             reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_DUPLE, requestTime);

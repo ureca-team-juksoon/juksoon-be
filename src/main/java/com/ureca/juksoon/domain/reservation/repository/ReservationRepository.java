@@ -1,5 +1,6 @@
 package com.ureca.juksoon.domain.reservation.repository;
 
+import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.reservation.entity.Reservation;
 import com.ureca.juksoon.domain.reservation.entity.ReservationAttemptState;
 import com.ureca.juksoon.domain.user.entity.User;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    boolean existsReservationByUserAndState(User user, ReservationAttemptState state);
-
     List<Reservation> findAllByStateAndFeed_Id(ReservationAttemptState state, Long feedId);
+
+    boolean existsReservationByUserAndStateAndFeed(User user, ReservationAttemptState state, Feed feed);
 }
