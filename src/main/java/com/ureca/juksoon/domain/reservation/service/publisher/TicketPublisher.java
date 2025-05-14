@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class TicketPublisher {
-    private static final String TICKET_PUBLISHER_LUA_SCRIPT = "redis-script/ticket-publish-script.lua";
-
     private final LuaScriptExecutor luaScriptExecutor;
     private final ObjectMapper objectMapper;
 
@@ -38,13 +36,5 @@ public class TicketPublisher {
         } catch (JsonProcessingException e) {
             throw new GlobalException(ResultCode.TICKET_PARSING_FAILED);
         }
-    }
-
-    private List<String> getKeys(Long feedId){
-        return List.of(feedId.toString());
-    }
-
-    private String getArgs(Long userId){
-        return userId.toString();
     }
 }

@@ -14,6 +14,7 @@ public class CreationRedisFeedEventHandler {
     private static final String META = ":meta";
 
     private final OrdinalRedisExecutor<Void> ordinalRedisExecutor;
+
     public void makeTicketPublisher(CreationFeedEvent creationFeedEvent) {
         String key = creationFeedEvent.getFeedId() + META;
         ordinalRedisExecutor.hset(key, creationFeedEvent);

@@ -34,6 +34,9 @@ public enum ResultCode {
 
     // 예약 5000번대
     TICKET_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 5000, "서버 에러로 티켓 발급에 실패했습니다. 다시 시도해주세요."),
+    TICKET_PUBLISHER_NOT_EXISTS(HttpStatus.CONFLICT, 5001, "신청을 할 수 없는 피드입니다."),
+    TICKET_ALREADY_PUBLISHED(HttpStatus.BAD_REQUEST, 5002, "이미 신청하셨습니다."),
+    CLOSED_FEED(HttpStatus.BAD_REQUEST, 5003, "신청이 마감된 피드입니다."),
     ;
 
     private final HttpStatus status;

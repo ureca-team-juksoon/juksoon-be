@@ -106,6 +106,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isRelatedInOAuth(String uri) {
-        return uri.startsWith(oauthLoginRequestUriStartWith) || uri.startsWith(oauthSuccessLoginCodeStartWith) || uri.startsWith(SWAGGER_START_WITH) || true;
+        return uri.startsWith(oauthLoginRequestUriStartWith) || uri.startsWith(oauthSuccessLoginCodeStartWith) || uri.startsWith(SWAGGER_START_WITH);
     }
 }

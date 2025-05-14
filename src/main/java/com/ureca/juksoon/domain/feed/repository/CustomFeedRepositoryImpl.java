@@ -70,10 +70,20 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
     }
 
     @Override
-    public void updateAllStatus() {
+    public void deactivateAllStatus() {
+        LocalDateTime now = LocalDateTime.now();
         jpaQueryFactory.update(feed)
                 .set(feed.status, Status.CLOSED)
-                .where(feed.status.eq(Status.OPEN).and(feed.expiredAt.lt(LocalDateTime.now().toString())))
+                .where(feed.status.eq(Status.OPEN).and(feed.expiredAt.goe(now.toString())))
+                .execute();
+    }
+
+    @Override
+    public void activateAllStatus() {
+        LocalDateTime now = LocalDateTime.now();
+        jpaQueryFactory.update(feed)
+                .set(feed.status, Status.OPEN)
+                .where(feed.status.eq(Status.UPCOMING).and(feed.startAt.loe(now.toString())))
                 .execute();
     }
 

@@ -3,6 +3,9 @@ package com.ureca.juksoon.global.redis.ordinal;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -55,7 +58,10 @@ public class OrdinalRedisExecutor<T> {
     }
 
     public void setExpiredTime(String key, String endTime) {
-        redisTemplate.expireAt(key, Date.from(Instant.parse(endTime)));
+        LocalDateTime ldt = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Instant instant = ldt.atZone(ZoneId.systemDefault()).toInstant();
+
+        redisTemplate.expireAt(key, Date.from(instant));
     }
 
     private Object parseValue(Object raw) {

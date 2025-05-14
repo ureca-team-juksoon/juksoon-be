@@ -8,7 +8,6 @@ import com.ureca.juksoon.domain.user.repository.UserRepository;
 import java.util.Optional;
 
 import com.ureca.juksoon.global.event.event.MessageConsumeEvent;
-import com.ureca.juksoon.global.redis.ordinal.OrdinalRedisExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -24,10 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationConsumerService {
+public class ReservationStreamConsumerService {
     private static final String ALREADY_EXISTS_SET = ":buffer";
 
-    private final ReservationConsumerExceptionHandler reservationConsumerExceptionHandler;
+    private final ReservationStreamConsumerExceptionHandler reservationConsumerExceptionHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;

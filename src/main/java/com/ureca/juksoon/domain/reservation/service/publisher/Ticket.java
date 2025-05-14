@@ -11,10 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket {
-    private String err;     //에러 발생시 여기가 채워짐
+    private Integer err;     //에러 발생시 여기가 채워짐
     private Long feedId;    //에러 발생 X 시 여기가 채워짐
     private Long userId;
     private Integer currentTicketCount;
+
+    public boolean hasError(){
+        return err != null;
+    }
 
     public Map<String, String> convertStreamMessageBody(){
         return Map.of(

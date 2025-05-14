@@ -175,9 +175,16 @@ public class FeedService {
         return new ModifyFeedRes();
     }
 
+    //피드 상태 전환 활성 => 비활성
     @Transactional
     public void deactivateFeedByScheduler() {
-        feedRepository.updateAllStatus();
+        feedRepository.deactivateAllStatus();
+    }
+
+    //피드 상태 전환 비활성 => 활성
+    @Transactional
+    public void activateFeedByScheduler(){
+        feedRepository.activateAllStatus();
     }
 
     private void saveFeedFiles(List<MultipartFile> images, MultipartFile video, Feed feed) {

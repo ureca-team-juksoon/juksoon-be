@@ -18,12 +18,13 @@ public class GlobalEventListener {
     private final CreationRedisFeedEventHandler creationRedisFeedEventHandler;
 
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
     public void handleCreationFeedEvent(CreationFeedEvent creationFeedEvent){
         creationRedisFeedEventHandler.makeTicketPublisher(creationFeedEvent);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
     public void handleMessageConsumeEventHandler(MessageConsumeEvent messageConsumeEvent){
         messageConsumeEventHandler.removeTicketRecord(messageConsumeEvent);
     }
