@@ -45,8 +45,9 @@ public class FeedService {
      */
     @Transactional(readOnly = true)
     public GetHomeInfoRes getHomeInfo(Pageable pageable, String keyword, Category category, boolean isAvailable, SortType sortType) {
-        return new GetHomeInfoRes(feedRepository.findAllByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
-            .map(feed -> new GetFeedRes(feed, null))
+        long maxPage = (feedRepository.countAllByFiltering(isAvailable, category, keyword) + pageable.getPageSize() - 1) / pageable.getPageSize();
+
+        return new GetHomeInfoRes(maxPage, feedRepository.findPageByFiltering(pageable, isAvailable, sortType, category, keyword).stream()            .map(feed -> new GetFeedRes(feed, null))
             .toList());
     }
 

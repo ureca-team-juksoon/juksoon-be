@@ -24,10 +24,27 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     /**
+     * 필터링 시 전체 개수 count
+     */
+    @Override
+    public Long countAllByFiltering(boolean isAvailable, Category category, String keyword) {
+        return jpaQueryFactory
+            .select(feed.count())
+            .from(feed)
+            .leftJoin(feed.store, store)
+            .where(
+                isOpen(isAvailable),
+                categoryEq(category),
+                keywordContains(keyword)
+            )
+            .fetchOne();
+    }
+
+    /**
      * Feed 필터링 적용 전체 검색
      */
     @Override
-    public List<Feed> findAllByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword) {
+    public List<Feed> findPageByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword) {
         return jpaQueryFactory
             .selectFrom(feed)
             .leftJoin(feed.store, store)
