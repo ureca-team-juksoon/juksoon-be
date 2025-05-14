@@ -41,38 +41,50 @@ public class PessimisticReservationService {
         log.info("userId = {} requestTime = {}", userId, requestTime);
         log.info("userId = {} lockingTime = {}", userId, lockingTime);
 
-        Reservation reservation;
-
-        // 피드 상태 OPEN 체크
-        // (findFeed.getStatus() != Status.OPEN || findFeed.getExpiredAt().isBefore(requestTime))
-        // expiredAt 이 LocalDateTime 으로 변경되면 사용 가능
-        if (findFeed.getStatus() != Status.OPEN) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
-            reservationLogService.saveFailReservation(reservation);
-            throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
-        }
-
-        // 예약 가능 인원 체크
-        if (findFeed.getMaxUser() <= findFeed.getRegisteredUser()) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_FULL, requestTime);
-            reservationLogService.saveFailReservation(reservation);
-            throw new GlobalException(ResultCode.RESERVATION_IS_FULL);
-        }
-
-        // 중복 예약 예외 처리
-        boolean isExist = reservationRepository.existsReservationByUserAndStateAndFeed(findUser, ReservationAttemptState.SUCCESS, findFeed);
-
-        if (isExist) {
-            reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_DUPLE, requestTime);
-            reservationLogService.saveFailReservation(reservation);
-            throw new GlobalException(ResultCode.RESERVATION_DUPLE);
-        }
+        checkValidation(findFeed, findUser, requestTime);
 
         findFeed.increaseRegisterUser();
-        reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.SUCCESS, requestTime);
+        Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.SUCCESS, requestTime);
         reservationRepository.save(reservation);
 
         return CommonResponse.success("reservation success");
+    }
+
+    private void checkValidation(Feed findFeed, User findUser, LocalDateTime requestTime) {
+        // 피드 상태 체크
+        checkReservationState(findFeed, findUser, requestTime);
+
+        // 예약 가능 인원 체크
+        checkReservationUser(findFeed, findUser, requestTime);
+
+        // 중복 예약 예외 처리
+        checkDupleReservation(findFeed, findUser, requestTime);
+    }
+
+    private void checkReservationState(Feed findFeed, User findUser, LocalDateTime requestTime) {
+        if (findFeed.getStatus() != Status.OPEN) {
+            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
+            reservationLogService.saveFailReservation(reservation);
+            throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
+        }
+    }
+
+    private void checkReservationUser(Feed findFeed, User findUser, LocalDateTime requestTime) {
+        if (findFeed.getMaxUser() <= findFeed.getRegisteredUser()) {
+            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_FULL, requestTime);
+            reservationLogService.saveFailReservation(reservation);
+            throw new GlobalException(ResultCode.RESERVATION_IS_FULL);
+        }
+    }
+
+    private void checkDupleReservation(Feed findFeed, User findUser, LocalDateTime requestTime) {
+        boolean isExist = reservationRepository.existsReservationByUserAndStateAndFeed(findUser, ReservationAttemptState.SUCCESS, findFeed);
+
+        if (isExist) {
+            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_DUPLE, requestTime);
+            reservationLogService.saveFailReservation(reservation);
+            throw new GlobalException(ResultCode.RESERVATION_DUPLE);
+        }
     }
 
 
