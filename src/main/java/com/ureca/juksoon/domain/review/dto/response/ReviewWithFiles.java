@@ -1,6 +1,6 @@
-package com.ureca.juksoon.domain.review.dto;
+package com.ureca.juksoon.domain.review.dto.response;
 
-import com.ureca.juksoon.domain.review.entity.FileType;
+import com.ureca.juksoon.domain.common.FileType;
 import com.ureca.juksoon.domain.review.entity.Review;
 import com.ureca.juksoon.domain.review.entity.ReviewFile;
 import lombok.AllArgsConstructor;

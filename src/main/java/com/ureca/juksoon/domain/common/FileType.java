@@ -1,4 +1,4 @@
-package com.ureca.juksoon.domain.review.entity;
+package com.ureca.juksoon.domain.common;
 
 import lombok.Getter;
 

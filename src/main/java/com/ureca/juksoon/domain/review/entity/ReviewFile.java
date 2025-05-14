@@ -1,6 +1,7 @@
 package com.ureca.juksoon.domain.review.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
+import com.ureca.juksoon.domain.common.FileType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

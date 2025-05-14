@@ -2,13 +2,13 @@ package com.ureca.juksoon.domain.review.service;
 
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
-import com.ureca.juksoon.domain.review.dto.ReviewWithFiles;
+import com.ureca.juksoon.domain.review.dto.response.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
 import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.DeleteReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.GetReviewsRes;
 import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
-import com.ureca.juksoon.domain.review.entity.FileType;
+import com.ureca.juksoon.domain.common.FileType;
 import com.ureca.juksoon.domain.review.entity.Review;
 import com.ureca.juksoon.domain.review.entity.ReviewFile;
 import com.ureca.juksoon.domain.review.repository.ReviewFileRepository;
@@ -26,13 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.ureca.juksoon.global.response.ResultCode.REVIEW_NOT_FOUND;
-import static com.ureca.juksoon.global.response.ResultCode.USER_NOT_FOUNT;
 
 
 @Slf4j
@@ -71,8 +69,6 @@ public class ReviewService {
      */
     public GetReviewsRes getReviews(Long userId, UserRole userRole, Long feedId) {
 
-        log.info("사용자 권한: {}", userRole);
-
         // 리뷰에 해당하는 파일들 모두 조회
         List<Review> reviews = List.of();
 
@@ -86,7 +82,7 @@ public class ReviewService {
                     .orElse(List.of());
         }
 
-        // 리뷰 작성자 id 받아오기
+        // 리뷰 id 받아오기
         List<Long> reviewIds = reviews.stream()
                 .map(Review::getId)
                 .toList();
@@ -140,7 +136,7 @@ public class ReviewService {
         Review review = reviewRepository.findByFeedIdAndUserId(feedId, userId)
                 .orElseThrow(() -> new GlobalException(REVIEW_NOT_FOUND));
 
-        // 리뷰에 연결딘 파일 찾기
+        // 리뷰에 연결된 파일 찾기
         List<ReviewFile> files = reviewFileRepository.findAllByReviewId(review.getId());
 
         // S3에서 파일 데이터 삭제

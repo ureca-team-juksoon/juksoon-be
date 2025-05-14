@@ -1,6 +1,10 @@
 package com.ureca.juksoon.domain.review.controller;
 
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
+import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
+import com.ureca.juksoon.domain.review.dto.response.DeleteReviewRes;
+import com.ureca.juksoon.domain.review.dto.response.GetReviewsRes;
+import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
 import com.ureca.juksoon.domain.review.service.ReviewService;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
@@ -17,7 +21,7 @@ public class ReviewController {
 
     // create
     @PostMapping
-    public CommonResponse<?> createReview(
+    public CommonResponse<CreateReviewRes> createReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
             @PathVariable("feed_id") Long feedId){
@@ -27,7 +31,7 @@ public class ReviewController {
 
     // read
     @GetMapping
-    public CommonResponse<?> getReviews(
+    public CommonResponse<GetReviewsRes> getReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("feed_id") Long feedId){
 
@@ -36,7 +40,7 @@ public class ReviewController {
 
     // update
     @PatchMapping
-    public CommonResponse<?> updateReview(
+    public CommonResponse<ModifyReviewRes> updteReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
             @PathVariable("feed_id") Long feedId){
@@ -46,7 +50,7 @@ public class ReviewController {
 
     // delete
     @DeleteMapping
-    public CommonResponse<?> deleteReview(
+    public CommonResponse<DeleteReviewRes> deleteReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("feed_id") Long feedId) {
 

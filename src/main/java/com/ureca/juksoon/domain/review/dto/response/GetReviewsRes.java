@@ -1,7 +1,5 @@
 package com.ureca.juksoon.domain.review.dto.response;
 
-import com.ureca.juksoon.domain.review.dto.ReviewWithFiles;
-import com.ureca.juksoon.domain.review.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

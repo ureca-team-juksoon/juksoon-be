@@ -14,6 +14,7 @@ import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.s3.FilePath;
 import com.ureca.juksoon.global.s3.S3Service;
+import com.ureca.juksoon.domain.common.FileType;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
