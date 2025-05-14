@@ -20,6 +20,7 @@ public class GetFeedRes {
     private Integer price;
     @Schema(description = "가게 이름", example = "빽다방 선릉중앙점") // Optional
     private String storeName;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     @Schema(description = "가게 로고 Url", example = "링크")
     private String logoImageURL;
     @Schema(description = "최대 신청 인원", example = "20")
