@@ -38,21 +38,48 @@ public class PessimisticReservationService {
 
         //비관락 시작
         Feed findFeed = findFeedForUpdate(feedId);
-        LocalDateTime lockingTime = LocalDateTime.now();
 
-        log.info("userId = {} requestTime = {}", userId, requestTime);
-        log.info("userId = {} lockingTime = {}", userId, lockingTime);
-
-        checkValidation(findFeed, findUser, requestTime);
+        checkReservationValidation(findFeed, findUser, requestTime);
 
         findFeed.increaseRegisterUser();
         Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.SUCCESS, requestTime);
         reservationRepository.save(reservation);
 
-        return CommonResponse.success("reservation success");
+        return CommonResponse.success("reservation succeeded");
     }
 
-    private void checkValidation(Feed findFeed, User findUser, LocalDateTime requestTime) {
+    public CommonResponse<?> cancelReservation(Long feedId, Long userId) {
+
+        LocalDateTime requestTime = LocalDateTime.now();
+
+        Reservation findReservation = findReservation(userId);
+
+        checkReservationCancelValidation(findReservation, requestTime);
+
+        // 예약 취소
+        findReservation.cancelReservation(requestTime);
+
+        // 비관락 시작
+        Feed findFeed = findFeedForUpdate(feedId);
+
+        findFeed.decreaseRegisterUser();
+
+        return CommonResponse.success("reservation canceled");
+    }
+
+    private void checkReservationCancelValidation(Reservation reservation, LocalDateTime requestTime) {
+
+        String feedExpiredAt = reservation.getFeed().getExpiredAt();
+        LocalDate localDate = LocalDate.parse(feedExpiredAt);
+        LocalTime localTime = LocalTime.of(0, 0, 0, 0);
+        LocalDateTime expiredAt = LocalDateTime.of(localDate, localTime);
+
+        if (requestTime.isAfter(expiredAt)) {
+            throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
+        }
+    }
+
+    private void checkReservationValidation(Feed findFeed, User findUser, LocalDateTime requestTime) {
         // 피드 상태 체크 & 만료 시간 체크
         checkReservationState(findFeed, findUser, requestTime);
 
@@ -69,7 +96,7 @@ public class PessimisticReservationService {
         LocalTime localTime = LocalTime.of(0, 0, 0, 0);
         LocalDateTime expiredAt = LocalDateTime.of(localDate, localTime);
 
-        if (findFeed.getStatus() != Status.OPEN || expiredAt.isAfter(LocalDateTime.now())) {
+        if (findFeed.getStatus() != Status.OPEN || requestTime.isAfter(expiredAt)) {
             Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
             reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
@@ -94,6 +121,10 @@ public class PessimisticReservationService {
         }
     }
 
+    private Reservation findReservation(Long userId) {
+        return reservationRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new GlobalException(ResultCode.RESERVATION_NOT_FOUND));
+    }
 
     private User findUser(Long userId) {
         return userRepository.findById(userId)

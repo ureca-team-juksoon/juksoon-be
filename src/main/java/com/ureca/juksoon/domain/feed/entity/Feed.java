@@ -88,4 +88,8 @@ public class Feed extends BaseEntity {
     public void increaseRegisterUser() {
         this.registeredUser++;
     }
+
+    public void decreaseRegisterUser(){
+        this.registeredUser--;
+    }
 }

@@ -59,4 +59,9 @@ public class Reservation {
                 .attemptedAt(requestTime)
                 .build();
     }
+
+    public void cancelReservation(LocalDateTime requestTIme){
+        this.canceledAt = requestTIme;
+        this.state = ReservationAttemptState.CANCELED_BY_USER;
+    }
 }

@@ -36,6 +36,7 @@ public enum ResultCode {
     RESERVATION_NOT_OPENED(HttpStatus.FORBIDDEN, 5000, "예약 가능시간이 아닙니다."),
     RESERVATION_IS_FULL(HttpStatus.FORBIDDEN, 5001, "예약 인원이 가득 찼습니다."),
     RESERVATION_DUPLE(HttpStatus.FORBIDDEN, 5002, "중복 예약 입니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, 5003, "예약을 찾을 수 없습니다.")
     ;
     private final HttpStatus status;
     private final int code;
