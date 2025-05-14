@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,18 +33,18 @@ public class FeedController {
      * @param isAvailable
      * @param sortType
      */
-    @Operation(summary = "피드 상세 조회(Home)", description = "피드 전체 조회(Home) : sort는 사용X")
+    @Operation(summary = "피드 전체 조회(Home)", description = "피드 전체 조회(Home) : sort는 사용X")
     @GetMapping
     public CommonResponse<GetHomeInfoRes> getHomeInfo(
-        @ParameterObject Pageable pageable,
+        @ParameterObject @PageableDefault(size = 8) Pageable pageable,
         @Parameter(description = "검색어")
         @RequestParam(required = false) String keyword,
         @Parameter(description = "카테고리")
         @RequestParam(required = false) Category category,
         @Parameter(description = "신청 가능 여부")
-        @RequestParam(required = false, defaultValue = "true") boolean isAvailable,
+        @RequestParam(required = false, defaultValue = "false") boolean isAvailable,
         @Parameter(description = "피드 순서")
-        @RequestParam(required = false, defaultValue = "POPULAR") SortType sortType) {
+        @RequestParam(required = false, defaultValue = "RECENT") SortType sortType) {
         return CommonResponse.success(feedService.getHomeInfo(pageable, keyword, category, isAvailable, sortType));
     }
 
@@ -56,7 +57,7 @@ public class FeedController {
     public CommonResponse<GetMypageInfoRes> getMypageInfo(
         @Parameter(description = "사용자정보", required = true)
         @AuthenticationPrincipal CustomUserDetails userDetail,
-        @ParameterObject Pageable pageable,
+        @ParameterObject @PageableDefault(size = 8) Pageable pageable,
         @Parameter(description = "마지막 Feed Id")
         @RequestParam(required = false) Long lastFeedId) {
         return CommonResponse.success(feedService.getMypageInfo(userDetail.getUserId(), pageable, lastFeedId));
