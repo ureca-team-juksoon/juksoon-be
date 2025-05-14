@@ -69,7 +69,7 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .where(
                 reservation.user.eq(user),
                 ltFeedId(lastFeedId))
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1) // 다음 페이지 유무 판단을 위해
             .fetch();
     }
 
@@ -81,7 +81,7 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .where(
                 feed.store.eq(store),
                 ltFeedId(lastFeedId))
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1) // 다음 페이지 유무 판단을 위해
             .fetch();
     }
 

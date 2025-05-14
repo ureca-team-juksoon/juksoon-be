@@ -60,20 +60,28 @@ public class FeedService {
 
         if(user.getRole() == UserRole.ROLE_TESTER) { // 일반 사용자
             // Reservation 기반 조회
-            List<GetFeedRes> feedResList = feedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
+            List<GetFeedRes> feedResList = new ArrayList<>(feedRepository.findAllByUserOrderByFeedIdDesc(pageable, user, lastFeedId).stream()
                 .map(f -> new GetFeedRes(f, user.getRole()))
-                .toList();
+                .toList());
 
-            return new GetMypageInfoRes(user.getId(), user.getNickname(), user.getRole(), feedResList);
+            // 다음 페이지 확인 및 반환값 조정
+            boolean hasNextPage = (feedResList.size() > pageable.getPageSize());
+            if(hasNextPage) feedResList.remove(feedResList.size() - 1);
+
+            return new GetMypageInfoRes(user.getId(), user.getNickname(), user.getRole(), hasNextPage, feedResList);
         } else if(user.getRole() == UserRole.ROLE_OWNER) { // 사장님
             Store store = findStoreByUserId(user.getId());
 
             // store 기반 조회
-            List<GetFeedRes> feedResList = feedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
+            List<GetFeedRes> feedResList = new ArrayList<>(feedRepository.findAllByStoreOrderByFeedIdDesc(pageable, store, lastFeedId).stream()
                 .map(feed -> new GetFeedRes(feed, user.getRole()))
-                .toList();
+                .toList());
 
-            return new GetMypageInfoRes(store.getId(), store.getName(), user.getRole(), feedResList);
+            // 다음 페이지 확인 및 반환값 조정
+            boolean hasNextPage = (feedResList.size() > pageable.getPageSize());
+            if(hasNextPage) feedResList.remove(feedResList.size() - 1);
+
+            return new GetMypageInfoRes(store.getId(), store.getName(), user.getRole(), hasNextPage, feedResList);
         }
 
         // 이외의 경우에는 myPage 접근 불가
