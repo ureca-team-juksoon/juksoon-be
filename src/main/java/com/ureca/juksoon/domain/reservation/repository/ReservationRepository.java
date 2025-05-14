@@ -5,7 +5,11 @@ import com.ureca.juksoon.domain.reservation.entity.ReservationAttemptState;
 import com.ureca.juksoon.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     boolean existsReservationByUserAndState(User user, ReservationAttemptState state);
+
+    List<Reservation> findAllByStateAndFeed_Id(ReservationAttemptState state, Long feedId);
 }
