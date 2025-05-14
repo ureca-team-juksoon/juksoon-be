@@ -24,11 +24,10 @@ public class TicketPublisher {
     private final LuaScriptExecutor luaScriptExecutor;
     private final ObjectMapper objectMapper;
 
-    public Ticket publish(Long userId, ReservationReq reservationReq) {
-        String rawJsonTicket = luaScriptExecutor.execute(   //티켓 발급. => redis 플로우 실행
-                TICKET_PUBLISHER_LUA_SCRIPT,
-                getKeys(reservationReq.getFeedId()),
-                getArgs(userId));
+    public Ticket publish(Long userId, Long feedId) {
+        String rawJsonTicket = luaScriptExecutor.issueTicket(   //티켓 발급. => redis 플로우 실행
+                feedId.toString(),
+                userId.toString());
 
         return parseJsonToTicket(rawJsonTicket);    //레디스가 건내주는 json 객체를 Ticket으로 파싱 해 반환 만약, err이 반환되었다면, err만 채워져 있음
     }

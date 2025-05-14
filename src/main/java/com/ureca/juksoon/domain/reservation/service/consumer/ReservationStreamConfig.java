@@ -57,8 +57,8 @@ public class ReservationStreamConfig {
     @Bean
     public ThreadPoolTaskExecutor executor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(10);
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
         return executor;
     }
 

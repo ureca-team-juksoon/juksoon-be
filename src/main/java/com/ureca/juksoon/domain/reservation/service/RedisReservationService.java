@@ -20,8 +20,8 @@ public class RedisReservationService {
      * 생산자에서 티켓이 성공적으로 발급되면, 바로 return해줘 응답을 보내준다.
      * 생산자에서 티켓이 성공적으로 발급되지 않는다면, 바로 return 해줘 에러를 보내준다.
      */
-    public Ticket reserve(Long userId, ReservationReq reservationReq) {
+    public Ticket reserve(Long userId, Long feedId) {
 
-        return reservationPublisher.publishTicket(userId, reservationReq);
+        return reservationPublisher.publishTicket(userId, feedId);
     }
 }

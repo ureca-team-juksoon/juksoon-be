@@ -20,6 +20,6 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReservationReq reservationReq
     ) {
-        return CommonResponse.success(reservationService.reserve(userDetails.getUserId(), reservationReq));
+        return CommonResponse.success(reservationService.reserve(userDetails.getUserId(), reservationReq.getFeedId()));
     }
 }

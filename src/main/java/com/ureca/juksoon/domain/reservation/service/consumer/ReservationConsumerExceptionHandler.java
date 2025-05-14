@@ -1,7 +1,9 @@
 package com.ureca.juksoon.domain.reservation.service.consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class ReservationConsumerExceptionHandler {
     public void handleErrorTicket(Long userId, Long feedId, Integer currentTicketCount) {

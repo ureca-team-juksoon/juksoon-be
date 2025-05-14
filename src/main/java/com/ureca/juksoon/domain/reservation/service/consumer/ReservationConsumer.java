@@ -2,6 +2,7 @@ package com.ureca.juksoon.domain.reservation.service.consumer;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
  * 그 뭐냐 배치처리가 더 효율적일 것 같은데,,,
  */
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ReservationConsumer implements StreamListener<String, MapRecord<String, String, String>> {
@@ -28,6 +30,7 @@ public class ReservationConsumer implements StreamListener<String, MapRecord<Str
         Long userId = Long.valueOf(body.get("userId"));
         Integer currentTicketCount = Integer.parseInt(body.get("currentTicketCount"));
 
+        log.info("userID : {}", userId);
         reservationConsumerService.processReservationMessage(userId, feedId, currentTicketCount);
 
         redisTemplate.opsForStream().acknowledge("feed:stream", "reservation", message.getId());

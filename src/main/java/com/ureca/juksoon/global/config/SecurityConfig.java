@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/user/role").hasAnyAuthority(UserRole.ROLE_FIRST_LOGIN.getUserRole())
                         .requestMatchers("/test").hasAnyAuthority(UserRole.ROLE_OWNER.getUserRole())
+                        .requestMatchers("/reservation/test").permitAll()
                         .anyRequest().authenticated());
 
         http    //예외 발생시 예외 처리 핸들러들

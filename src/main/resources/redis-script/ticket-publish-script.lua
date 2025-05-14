@@ -26,7 +26,6 @@ end
 local maxTicketCount = tonumber(redis.call("HGET", metaFeedId, "maxTicketCount"))
 local currentTicketCount = tonumber(redis.call("HGET", metaFeedId, "currentTicketCount") or "0")
 local endTime = tonumber(redis.call("HGET", metaFeedId, "endTime"))
-local nowTs = tonumber(redis.call("TIME")[1])
 
 -- 3) 중복 신청 방지
 if redis.call("SISMEMBER", bufferFeedId, userId)==1 then
