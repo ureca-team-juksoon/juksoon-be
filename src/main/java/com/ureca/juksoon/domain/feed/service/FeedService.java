@@ -11,12 +11,14 @@ import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.entity.UserRole;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
+import com.ureca.juksoon.global.event.event.CreationFeedEvent;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.s3.FilePath;
 import com.ureca.juksoon.global.s3.S3Service;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,7 @@ public class FeedService {
     private final StoreRepository storeRepository;
     private final FeedRepository feedRepository;
     private final FeedFileRepository feedFileRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Home 조회
@@ -112,6 +115,9 @@ public class FeedService {
 
         Feed savedFeed = feedRepository.save(feed);
 
+        //@TransactionalEventListener로 트랜잭션 실행 후 레디스 실행
+        makeTicketPublisherInRedis(feed);
+
         // 이미지 & 비디오: s3 업로드 및 DB 저장
         saveFeedFiles(req.getImages(), req.getVideo(), savedFeed);
 
@@ -169,6 +175,18 @@ public class FeedService {
         return new ModifyFeedRes();
     }
 
+    //피드 상태 전환 활성 => 비활성
+    @Transactional
+    public void deactivateFeedByScheduler() {
+        feedRepository.deactivateAllStatus();
+    }
+
+    //피드 상태 전환 비활성 => 활성
+    @Transactional
+    public void activateFeedByScheduler(){
+        feedRepository.activateAllStatus();
+    }
+
     private void saveFeedFiles(List<MultipartFile> images, MultipartFile video, Feed feed) {
         List<FeedFile> fileList = new ArrayList<>();
 
@@ -203,5 +221,14 @@ public class FeedService {
 
     private Feed findFeed(Long feedId) {
         return feedRepository.findById(feedId).orElseThrow(() -> new GlobalException(FEED_NOT_FOUND));
+    }
+
+    private void makeTicketPublisherInRedis(Feed feed) {
+        applicationEventPublisher.publishEvent(new CreationFeedEvent(
+                feed.getId(),
+                feed.getRegisteredUser(),
+                feed.getMaxUser(),
+                feed.getExpiredAt()
+        ));
     }
 }

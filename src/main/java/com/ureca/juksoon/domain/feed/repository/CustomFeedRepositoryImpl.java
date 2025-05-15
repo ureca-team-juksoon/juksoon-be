@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.ureca.juksoon.domain.feed.entity.QFeed.feed;
@@ -66,6 +67,24 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
                 ltFeedId(lastFeedId))
             .limit(pageable.getPageSize())
             .fetch();
+    }
+
+    @Override
+    public void deactivateAllStatus() {
+        LocalDateTime now = LocalDateTime.now();
+        jpaQueryFactory.update(feed)
+                .set(feed.status, Status.CLOSED)
+                .where(feed.status.eq(Status.OPEN).and(feed.expiredAt.goe(now.toString())))
+                .execute();
+    }
+
+    @Override
+    public void activateAllStatus() {
+        LocalDateTime now = LocalDateTime.now();
+        jpaQueryFactory.update(feed)
+                .set(feed.status, Status.OPEN)
+                .where(feed.status.eq(Status.UPCOMING).and(feed.startAt.loe(now.toString())))
+                .execute();
     }
 
     // 정렬 순서 설정
