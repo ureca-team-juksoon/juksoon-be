@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+
+import com.ureca.juksoon.global.util.DateTimeParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -58,7 +60,7 @@ public class OrdinalRedisExecutor<T> {
     }
 
     public void setExpiredTime(String key, String endTime) {
-        LocalDateTime ldt = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime ldt = DateTimeParserUtil.toLocalDateTime(endTime);
         Instant instant = ldt.atZone(ZoneId.systemDefault()).toInstant();
 
         redisTemplate.expireAt(key, Date.from(instant));
