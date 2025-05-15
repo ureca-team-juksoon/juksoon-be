@@ -37,20 +37,20 @@ public class RedisReservationService {
             retryFor = {DataAccessException.class},
             maxAttempts = 3,
             recover = "pessimisticReserve")
-    public CommonResponse<String> reserve(Long userId, Long feedId) {
+    public String reserve(Long userId, Long feedId) {
         Ticket ticket = ticketPublisher.publish(userId, feedId);
 
         if (ticket.hasError()) throwError(ticket);
 
         reservationStreamPublisher.sendToStream(ticket);
 
-        return CommonResponse.success("ok");
+        return "ok";
     }
 
     @Recover
-    public CommonResponse<ReservationRes> pessimisticReserve(DataAccessException e, Long userId, Long feedId) {
+    public String pessimisticReserve(DataAccessException e, Long userId, Long feedId) {
         ReservationRes response = pessimisticReservationService.doReservation(feedId, userId);
-        return CommonResponse.success(response);
+        return "ok";
     }
 
     private void throwError(Ticket ticket) {

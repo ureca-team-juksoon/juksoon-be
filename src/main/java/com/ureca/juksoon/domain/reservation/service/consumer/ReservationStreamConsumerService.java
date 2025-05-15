@@ -5,13 +5,16 @@ import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.reservation.entity.Reservation;
 import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
-import java.util.Optional;
-
 import com.ureca.juksoon.global.event.event.MessageConsumeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * 메시지 처리
@@ -26,23 +29,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReservationStreamConsumerService {
     private static final String ALREADY_EXISTS_SET = ":buffer";
 
-    private final ReservationStreamConsumerExceptionHandler reservationConsumerExceptionHandler;
+    private final ReservationStreamConsumerExceptionService reservationStreamConsumerExceptionService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final FeedRepository feedRepository;
 
     //예외 처리 들어가야함
+    @Retryable(retryFor = {SQLException.class}, maxAttempts = 3, recover = "ReservationExceptionHandler")
     @Transactional
-    public void processReservationMessage(Long userId, Long feedId, Integer currentTicketCount){
+    public void processReservationMessage(Long userId, Long feedId, Integer currentTicketCount) {
         Optional<Feed> feed = feedRepository.findById(feedId);
-        if(feed.isPresent()){
+        if (feed.isPresent()) {
             feed.get().updateRegisteredUser(currentTicketCount);
             Reservation newReservation = makeNewReservation(userId, feedId);
             reservationRepository.save(newReservation);
             makeCreationFeedEvent(feed.get(), userId);
         }
-        reservationConsumerExceptionHandler.handleErrorTicket(userId, feedId, currentTicketCount);
     }
 
     private void makeCreationFeedEvent(Feed feed, Long userId) {
@@ -57,5 +60,11 @@ public class ReservationStreamConsumerService {
                 .user(userRepository.getReferenceById(userId))
                 .feed(feedRepository.getReferenceById(feedId))
                 .build();
+    }
+
+    @Recover
+    @Transactional
+    public void saveException(Exception e, Long userId, Long feedId, Integer currentTicketCount) {
+        reservationStreamConsumerExceptionService.saveException(e, userId, feedId, currentTicketCount);
     }
 }
