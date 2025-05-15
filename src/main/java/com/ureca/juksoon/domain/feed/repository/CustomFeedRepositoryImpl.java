@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.ureca.juksoon.domain.feed.entity.QFeed.feed;
+import static com.ureca.juksoon.domain.feed.entity.SortType.PRICE_ASC;
 import static com.ureca.juksoon.domain.reservation.entity.QReservation.reservation;
 import static com.ureca.juksoon.domain.store.entity.QStore.store;
 
@@ -24,13 +25,31 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     /**
+     * 필터링 시 전체 개수 count
+     */
+    @Override
+    public Long countAllByFiltering(boolean isAvailable, Category category, String keyword) {
+        return jpaQueryFactory
+            .select(feed.count())
+            .from(feed)
+            .leftJoin(feed.store, store)
+            .where(
+                isOpen(isAvailable),
+                categoryEq(category),
+                keywordContains(keyword)
+            )
+            .fetchOne();
+    }
+
+    /**
      * Feed 필터링 적용 전체 검색
      */
     @Override
-    public List<Feed> findAllByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword) {
-        return jpaQueryFactory
-            .selectFrom(feed)
-            .leftJoin(feed.store, store)
+    public List<Feed> findPageByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword) {
+        // 서브쿼리로 ID 먼저 추출
+        List<Long> feedIds = jpaQueryFactory
+            .select(feed.id)
+            .from(feed)
             .where(
                 isOpen(isAvailable),
                 categoryEq(category),
@@ -39,6 +58,13 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .orderBy(getSortTypeSpecifier(sortType))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
+            .fetch();
+
+        // feedId 기반 전체 데이터 조회
+        return jpaQueryFactory
+            .selectFrom(feed)
+            .leftJoin(feed.store, store).fetchJoin()
+            .where(feed.id.in(feedIds))
             .fetch();
     }
 
@@ -52,7 +78,7 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .where(
                 reservation.user.eq(user),
                 ltFeedId(lastFeedId))
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1) // 다음 페이지 유무 판단을 위해
             .fetch();
     }
 
@@ -64,17 +90,20 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
             .where(
                 feed.store.eq(store),
                 ltFeedId(lastFeedId))
-            .limit(pageable.getPageSize())
+            .limit(pageable.getPageSize() + 1) // 다음 페이지 유무 판단을 위해
             .fetch();
     }
 
     // 정렬 순서 설정
-    private OrderSpecifier<?> getSortTypeSpecifier(SortType sortType) {
-        return switch (sortType) {
-            case PRICE_ASC -> new OrderSpecifier<>(Order.ASC, QFeed.feed.price);
-            case RECENT -> new OrderSpecifier<>(Order.DESC, QFeed.feed.id);
-            default -> new OrderSpecifier<>(Order.DESC, QFeed.feed.registeredUser.doubleValue().divide(QFeed.feed.maxUser.doubleValue()));
-        };
+    private OrderSpecifier<?>[] getSortTypeSpecifier(SortType sortType) {
+        if (sortType == PRICE_ASC) { // PRICE_ASC
+            return new OrderSpecifier[] {
+                new OrderSpecifier<>(Order.ASC, QFeed.feed.price),
+                new OrderSpecifier<>(Order.DESC, QFeed.feed.id)
+            };
+        } else { // RECENT
+            return new OrderSpecifier[] { new OrderSpecifier<>(Order.DESC, QFeed.feed.id) };
+        }
     }
 
     // 신청 가능 여부 필터링

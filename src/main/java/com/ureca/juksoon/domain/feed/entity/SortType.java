@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum SortType {
-    POPULAR, RECENT, PRICE_ASC;
+    RECENT, PRICE_ASC;
 }

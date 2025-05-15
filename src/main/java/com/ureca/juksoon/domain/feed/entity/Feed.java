@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Builder
-@Table(name = "feed")
+@Table(name = "feed", indexes = {
+    @Index(name = "idx_price_id", columnList = "price, id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Feed extends BaseEntity {
