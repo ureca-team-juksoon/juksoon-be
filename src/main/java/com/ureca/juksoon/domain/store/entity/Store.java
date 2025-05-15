@@ -1,6 +1,7 @@
 package com.ureca.juksoon.domain.store.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
+import com.ureca.juksoon.domain.store.dto.request.StoreReq;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,12 +29,15 @@ public class Store extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
+
     @Column(name = "address")
     private String address;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "logo_image_url")
     private String logoImageURL;
 
@@ -41,10 +45,21 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void updateStore(String name, String address, String description, String logoImageURL) {
-        this.name = name;
-        this.address = address;
-        this.description = description;
+
+    public static Store of(User user, StoreReq store, String imageURL) {
+        return Store.builder()
+                .name(store.getName())
+                .address(store.getAddress())
+                .description(store.getDescription())
+                .logoImageURL(imageURL)
+                .user(user)
+                .build();
+    }
+
+    public void update(StoreReq store, String logoImageURL) {
+        this.name = store.getName();
+        this.address = store.getAddress();
+        this.description = store.getDescription();
         this.logoImageURL = logoImageURL;
     }
 }

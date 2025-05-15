@@ -1,24 +1,20 @@
 package com.ureca.juksoon.domain.store.service;
 
-import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
-import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
+import com.ureca.juksoon.domain.store.dto.request.StoreReq;
+import com.ureca.juksoon.domain.store.dto.response.CreateStoreRes;
+import com.ureca.juksoon.domain.store.dto.response.ModifyStoreRes;
 import com.ureca.juksoon.domain.store.dto.response.StoreReadRes;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.store.repository.StoreRepository;
 import com.ureca.juksoon.domain.user.entity.User;
+import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
-import com.ureca.juksoon.global.response.CommonResponse;
-import com.ureca.juksoon.global.response.ResultCode;
 import com.ureca.juksoon.global.s3.FilePath;
 import com.ureca.juksoon.global.s3.S3Service;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.ureca.juksoon.global.response.ResultCode.STORE_NOT_FOUND;
@@ -27,55 +23,59 @@ import static com.ureca.juksoon.global.response.ResultCode.STORE_NOT_FOUND;
 @RequiredArgsConstructor
 public class StoreService {
 
-    private final EntityManager em;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
     private final S3Service s3Service;
 
+    /**
+     * 가게 생성
+     */
     @Transactional
-    public CommonResponse<?> createStore(Long userId, StoreCreateReq request, MultipartFile image) {
+    public CreateStoreRes createStore(Long userId, StoreReq req) {
 
-        //해당 userId로 이미 가게가 존재하면 가게 정보 생성 불가
-        boolean isExist = storeRepository.existsByUserId(userId);
-        if (isExist) throw new GlobalException(ResultCode.ALREADY_EXISTS_STORE);
-        String imageURL = "EMPTY";
-        //이미지 파일이 왔을 경우 업로드 메서드 동작
-        if (image != null && !image.isEmpty()) {
-            imageURL = s3Service.uploadFile(image, FilePath.STORE);
+        // S3에 로고 이미지 먼저 업로드
+        String imageURL = "";
+        if (req.getImage()!= null && !req.getImage().isEmpty()) {
+            imageURL = s3Service.uploadFile(req.getImage(), FilePath.STORE);
         }
 
-        User findUser = em.getReference(User.class, userId);
-        Store store = toEntity(request, findUser, imageURL);
+        User user = userRepository.getReferenceById(userId);
+        Store store = Store.of(user, req, imageURL);
 
-        storeRepository.save(store);
+        Store saveStore = storeRepository.save(store);
 
-        return CommonResponse.success("ok");
+        return new CreateStoreRes(saveStore.getId());
     }
 
-    @Transactional(readOnly = true)
-    public CommonResponse<StoreReadRes> readStore(Long userId) {
+    /**
+     * 가게 정보 조회
+     */
+    public StoreReadRes readStore(Long userId) {
 
-        Store findStore = findStoreByUserId(userId);
+        Store store = findStoreByUserId(userId);
 
-        StoreReadRes response = toDto(findStore);
-
-        return CommonResponse.success(response);
+        return StoreReadRes.from(store);
     }
 
+    /**
+     * 가게 정보 수정
+     */
     @Transactional
-    public CommonResponse<StoreReadRes> updateStore(Long userId, StoreUpdateReq request, MultipartFile image) throws UnsupportedEncodingException {
+    public ModifyStoreRes updateStore(Long userId, StoreReq req) {
 
-        Store findStore = findStoreByUserId(userId);
+        // 이전 파일 삭제
+        Store store = findStoreByUserId(userId);
+        String logoImageURL = store.getLogoImageURL();
 
-        String logoImageURL = findStore.getLogoImageURL();
-        //이전 파일 삭제 및 재업로드
-        if (image != null && !image.isEmpty()) {
-            s3Service.deleteMultiFiles(new ArrayList<>(List.of(findStore.getLogoImageURL())), FilePath.STORE);
-            logoImageURL = s3Service.uploadFile(image, FilePath.STORE);
+        if (req.getImage() != null && !req.getImage().isEmpty()) {
+            s3Service.deleteMultiFiles(List.of(logoImageURL), FilePath.STORE);
+            logoImageURL = s3Service.uploadFile(req.getImage(), FilePath.STORE);
         }
 
-        findStore.updateStore(request.getName(), request.getAddress(), request.getDescription(), logoImageURL);
+        // 수정
+        store.update(req, logoImageURL);
 
-        return CommonResponse.success(null);
+        return new ModifyStoreRes(store.getId());
     }
 
     private Store findStoreByUserId(Long userId) {
@@ -84,22 +84,4 @@ public class StoreService {
         return store;
     }
 
-    private StoreReadRes toDto(Store store) {
-        return StoreReadRes.builder()
-                .name(store.getName())
-                .address(store.getAddress())
-                .description(store.getDescription())
-                .logoImageURL(store.getLogoImageURL())
-                .build();
-    }
-
-    private Store toEntity(StoreCreateReq request, User user, String imageURL) {
-        return Store.builder()
-                .name(request.getName())
-                .address(request.getAddress())
-                .description(request.getDescription())
-                .logoImageURL(imageURL)
-                .user(user)
-                .build();
-    }
 }
