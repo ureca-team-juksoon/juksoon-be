@@ -71,6 +71,9 @@ dependencies {
     //redis 25.05.12
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // retryable
+    implementation 'org.springframework.retry:spring-retry'
 }
 
 tasks.named('test') {
