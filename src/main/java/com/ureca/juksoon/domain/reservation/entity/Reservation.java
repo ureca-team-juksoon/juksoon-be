@@ -4,8 +4,6 @@ import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,27 +38,14 @@ public class Reservation {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "state")
-    private ReservationAttemptState state;
+    @Column(name = "requested_at")
+    private LocalDateTime requestedAt;
 
-    @Column(name = "attempted_at")
-    private LocalDateTime attemptedAt;
-
-    @Column(name = "canceled_at")
-    private LocalDateTime canceledAt;
-
-    public static Reservation of(Feed feed, User user, ReservationAttemptState state, LocalDateTime requestTime) {
+    public static Reservation of(Feed feed, User user, LocalDateTime requestTime) {
         return Reservation.builder()
                 .feed(feed)
                 .user(user)
-                .state(state)
-                .attemptedAt(requestTime)
+                .requestedAt(requestTime)
                 .build();
-    }
-
-    public void cancelReservation(LocalDateTime requestTIme){
-        this.canceledAt = requestTIme;
-        this.state = ReservationAttemptState.CANCELED_BY_USER;
     }
 }

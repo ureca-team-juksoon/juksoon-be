@@ -3,22 +3,20 @@ package com.ureca.juksoon.domain.reservation.pessimistic;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.Status;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
+import com.ureca.juksoon.domain.reservation.dto.ReservationRes;
 import com.ureca.juksoon.domain.reservation.entity.Reservation;
-import com.ureca.juksoon.domain.reservation.entity.ReservationAttemptState;
 import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.user.entity.User;
 import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
-import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.ResultCode;
+import com.ureca.juksoon.global.util.DateTimeParserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Slf4j
 @Service
@@ -28,109 +26,57 @@ public class PessimisticReservationService {
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
-    private final ReservationLogService reservationLogService;
 
     @Transactional
-    public CommonResponse<?> doReservation(Long feedId, Long userId) {
+    public ReservationRes doReservation(Long feedId, Long userId) {
 
-        User findUser = findUser(userId);
+        User findUserReference = findUserReference(userId);
         LocalDateTime requestTime = LocalDateTime.now();
 
         //비관락 시작
         Feed findFeed = findFeedForUpdate(feedId);
 
-        checkReservationValidation(findFeed, findUser, requestTime);
-
-        findFeed.increaseRegisterUser();
-        Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.SUCCESS, requestTime);
-        reservationRepository.save(reservation);
-
-        return CommonResponse.success("reservation succeeded");
-    }
-
-    @Transactional
-    public CommonResponse<?> cancelReservation(Long reservationId) {
-
-
-        LocalDateTime requestTime = LocalDateTime.now();
-
-        Reservation findReservation = findReservation(reservationId);
-
-        checkReservationCancelValidation(findReservation, requestTime);
-
-        // 예약 취소
-        findReservation.cancelReservation(requestTime);
-
-        // 비관락 시작
-        Feed findFeed = findFeedForUpdate(findReservation.getFeed().getId());
-
-        findFeed.decreaseRegisterUser();
-
-        return CommonResponse.success("reservation canceled");
-    }
-
-    private void checkReservationCancelValidation(Reservation reservation, LocalDateTime requestTime) {
-
-        String feedExpiredAt = reservation.getFeed().getExpiredAt();
-        LocalDate localDate = LocalDate.parse(feedExpiredAt);
-        LocalTime localTime = LocalTime.of(0, 0, 0, 0);
-        LocalDateTime expiredAt = LocalDateTime.of(localDate, localTime);
-
-        if (requestTime.isAfter(expiredAt)) {
-            throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
-        }
-    }
-
-    private void checkReservationValidation(Feed findFeed, User findUser, LocalDateTime requestTime) {
         // 피드 상태 체크 & 만료 시간 체크
-        checkReservationState(findFeed, findUser, requestTime);
+        checkReservationState(findFeed, requestTime);
 
         // 예약 가능 인원 체크
-        checkReservationUser(findFeed, findUser, requestTime);
+        checkReservationUser(findFeed);
 
         // 중복 예약 예외 처리
-        checkDupleReservation(findFeed, findUser, requestTime);
+        checkReservationDuple(findFeed, findUserReference);
+
+        findFeed.increaseRegisterUser();
+        Reservation reservation = Reservation.of(findFeed, findUserReference, requestTime);
+        reservationRepository.save(reservation);
+
+        return ReservationRes.toEntity(reservation);
     }
 
-    private void checkReservationState(Feed findFeed, User findUser, LocalDateTime requestTime) {
+    private void checkReservationState(Feed findFeed, LocalDateTime requestTime) {
         String feedExpiredAt = findFeed.getExpiredAt();
-        LocalDate localDate = LocalDate.parse(feedExpiredAt);
-        LocalTime localTime = LocalTime.of(0, 0, 0, 0);
-        LocalDateTime expiredAt = LocalDateTime.of(localDate, localTime);
 
-        if (findFeed.getStatus() != Status.OPEN || requestTime.isAfter(expiredAt)) {
-            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_CLOSED, requestTime);
-            reservationLogService.saveFailReservation(reservation);
+        if (findFeed.getStatus() != Status.OPEN || requestTime.isAfter(DateTimeParserUtil.toLocalDateTime(feedExpiredAt))) {
             throw new GlobalException(ResultCode.RESERVATION_NOT_OPENED);
         }
     }
 
-    private void checkReservationUser(Feed findFeed, User findUser, LocalDateTime requestTime) {
+    private void checkReservationUser(Feed findFeed) {
         if (findFeed.getMaxUser() <= findFeed.getRegisteredUser()) {
-            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_FULL, requestTime);
-            reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_IS_FULL);
         }
     }
 
-    private void checkDupleReservation(Feed findFeed, User findUser, LocalDateTime requestTime) {
-        boolean isExist = reservationRepository.existsReservationByUserAndStateAndFeed(findUser, ReservationAttemptState.SUCCESS, findFeed);
+    private void checkReservationDuple(Feed findFeed, User findUserReference) {
+        boolean isExist = reservationRepository.existsReservationByUserAndFeed(findUserReference, findFeed);
 
         if (isExist) {
-            Reservation reservation = Reservation.of(findFeed, findUser, ReservationAttemptState.FAIL_DUPLE, requestTime);
-            reservationLogService.saveFailReservation(reservation);
             throw new GlobalException(ResultCode.RESERVATION_DUPLE);
         }
     }
 
-    private Reservation findReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new GlobalException(ResultCode.RESERVATION_NOT_FOUND));
-    }
+    private User findUserReference(Long userId) {
+        return userRepository.getReferenceById(userId);
 
-    private User findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUNT));
     }
 
     private Feed findFeedForUpdate(Long feedId) {
