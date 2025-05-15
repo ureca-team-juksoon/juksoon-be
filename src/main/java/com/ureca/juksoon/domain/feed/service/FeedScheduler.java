@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class FeedScheduler {
     private final FeedService feedService;
 
-    @Scheduled(cron = "0 59 23 * * * ")
+    @Scheduled(cron = "0 0 0 * * *")
     public void deactivateFeedProcess(){
         feedService.deactivateFeedByScheduler();
     }
