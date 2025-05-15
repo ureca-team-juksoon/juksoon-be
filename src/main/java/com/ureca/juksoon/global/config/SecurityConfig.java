@@ -119,7 +119,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration(); // cors 설정
         configuration.addAllowedOrigin(cors_origin); // 허용할 origin 설정
-        configuration.addAllowedOrigin("추가 origin 주소");
         configuration.addAllowedMethod("*"); // 모든 HTTP 메소드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 허용
