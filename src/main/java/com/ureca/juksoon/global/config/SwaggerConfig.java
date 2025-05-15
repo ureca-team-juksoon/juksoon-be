@@ -15,14 +15,13 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
             .components(new Components()
-                .addSecuritySchemes("Authorization", new SecurityScheme()
-                    .type(SecurityScheme.Type.HTTP)
-//                    .scheme("bearer") // 토큰 앞에 Bearer 붙여주는 역할
+                .addSecuritySchemes("Cookie", new SecurityScheme()
+                    .type(SecurityScheme.Type.APIKEY)
                     .in(SecurityScheme.In.HEADER)
-                    .bearerFormat("JWT")
+                    .name("AccessToken")
                 )
             )
-            .addSecurityItem(new SecurityRequirement().addList("Authorization"))
+            .addSecurityItem(new SecurityRequirement().addList("Cookie"))
             .info(new Info()
                 .title("TEAM 죽순 API")
                 .description("죽순이 되어보자!!")

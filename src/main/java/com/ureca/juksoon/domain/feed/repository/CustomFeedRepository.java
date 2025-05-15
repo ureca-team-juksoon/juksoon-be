@@ -10,9 +10,15 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CustomFeedRepository {
-    List<Feed> findAllByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword);
+    Long countAllByFiltering(boolean isAvailable, Category category, String keyword);
+
+    List<Feed> findPageByFiltering(Pageable pageable, boolean isAvailable, SortType sortType, Category category, String keyword);
+
     List<Feed> findAllByUserOrderByFeedIdDesc(Pageable pageable, User user, Long lastFeedId);
+
     List<Feed> findAllByStoreOrderByFeedIdDesc(Pageable pageable, Store store, Long lastFeedId);
+
     void deactivateAllStatus();
+
     void activateAllStatus();
 }

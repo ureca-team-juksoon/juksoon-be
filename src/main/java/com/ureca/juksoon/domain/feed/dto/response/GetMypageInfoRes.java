@@ -20,6 +20,9 @@ public class GetMypageInfoRes {
     @Schema(description = "역할", example = "1")
     private UserRole role;
 
+    @Schema(description = "다음 페이지 존재 유무", example = "true")
+    private boolean hasNextPage;
+
     @Schema(description = "피드 List", example = "피드 List")
     private List<GetFeedRes> feedList;
 }

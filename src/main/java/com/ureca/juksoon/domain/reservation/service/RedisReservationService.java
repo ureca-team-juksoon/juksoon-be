@@ -38,7 +38,6 @@ public class RedisReservationService {
             maxAttempts = 3,
             recover = "pessimisticReserve")
     public CommonResponse<String> reserve(Long userId, Long feedId) {
-        log.info("reserve 동작 중 userId={}, feedId={}", userId, feedId);
         Ticket ticket = ticketPublisher.publish(userId, feedId);
 
         if (ticket.hasError()) throwError(ticket);

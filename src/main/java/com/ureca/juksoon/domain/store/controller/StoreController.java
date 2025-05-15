@@ -1,7 +1,8 @@
 package com.ureca.juksoon.domain.store.controller;
 
-import com.ureca.juksoon.domain.store.dto.request.StoreCreateReq;
-import com.ureca.juksoon.domain.store.dto.request.StoreUpdateReq;
+import com.ureca.juksoon.domain.store.dto.request.StoreReq;
+import com.ureca.juksoon.domain.store.dto.response.CreateStoreRes;
+import com.ureca.juksoon.domain.store.dto.response.ModifyStoreRes;
 import com.ureca.juksoon.domain.store.dto.response.StoreReadRes;
 import com.ureca.juksoon.domain.store.service.StoreService;
 import com.ureca.juksoon.global.response.CommonResponse;
@@ -9,14 +10,11 @@ import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,26 +24,25 @@ public class StoreController {
     private final StoreService storeService;
 
     @PostMapping
-    public CommonResponse<?> createStore(
+    public CommonResponse<CreateStoreRes> createStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestPart StoreCreateReq request,
-            @RequestPart(required = false) MultipartFile image) {
-        return storeService.createStore(customUserDetails.getUserId(), request, image);
+            @ModelAttribute StoreReq request) {
+
+        return CommonResponse.success(storeService.createStore(customUserDetails.getUserId(), request));
     }
 
     @GetMapping
     public CommonResponse<StoreReadRes> readStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        return storeService.readStore(customUserDetails.getUserId());
+        return CommonResponse.success(storeService.readStore(customUserDetails.getUserId()));
     }
 
-    @PutMapping
-    public CommonResponse<StoreReadRes> updateStore(
+    @PatchMapping
+    public CommonResponse<ModifyStoreRes> updateStore(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestPart StoreUpdateReq request,
-            @RequestPart(required = false) MultipartFile image) throws UnsupportedEncodingException {
+            @ModelAttribute StoreReq request) {
 
-        return storeService.updateStore(customUserDetails.getUserId(), request, image);
+        return CommonResponse.success(storeService.updateStore(customUserDetails.getUserId(), request));
     }
 }

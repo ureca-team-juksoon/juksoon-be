@@ -3,7 +3,6 @@ package com.ureca.juksoon.domain.feed.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.Status;
-import com.ureca.juksoon.domain.user.entity.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -20,6 +19,7 @@ public class GetFeedRes {
     private Integer price;
     @Schema(description = "가게 이름", example = "빽다방 선릉중앙점") // Optional
     private String storeName;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     @Schema(description = "가게 로고 Url", example = "링크")
     private String logoImageURL;
     @Schema(description = "최대 신청 인원", example = "20")
@@ -33,7 +33,7 @@ public class GetFeedRes {
     @Schema(description = "상태", example = "OPEN")
     private Status status;
 
-    public GetFeedRes(Feed feed, UserRole role) {
+    public GetFeedRes(Feed feed) {
         this.feedId = feed.getId();
         this.title = feed.getTitle();
         this.maxUser = feed.getMaxUser();
@@ -42,10 +42,7 @@ public class GetFeedRes {
         this.expiredAt = feed.getExpiredAt();
         this.status = feed.getStatus();
         this.logoImageURL = feed.getStore().getLogoImageURL();
-
-        if(role != UserRole.ROLE_OWNER) { // 사장은 표기X
-            this.price = feed.getPrice();
-            this.storeName = feed.getStore().getName();
-        }
+        this.price = feed.getPrice();
+        this.storeName = feed.getStore().getName();
     }
 }

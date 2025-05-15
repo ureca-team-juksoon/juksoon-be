@@ -1,50 +1,45 @@
-package com.ureca.juksoon.domain.feed.entity;
+package com.ureca.juksoon.domain.review.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
 import com.ureca.juksoon.domain.common.FileType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @Builder
-@Table(name = "feed_file")
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class FeedFile extends BaseEntity {
+@NoArgsConstructor
+public class ReviewFile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "feed_id", nullable = false)
-    private Feed feed;
-
-    @Column(nullable = false)
+    @Column(name = "url", nullable = false)
     private String url;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private FileType type;
 
-    public static FeedFile of(Feed feed, String url, FileType type) {
-        return FeedFile.builder()
-                .feed(feed)
+    @ManyToOne
+    @JoinColumn(name = "review_id", nullable = false)
+    private Review review;
+
+    public static ReviewFile of(Review review, String url, FileType fileType) {
+        return ReviewFile.builder()
                 .url(url)
-                .type(type)
+                .type(fileType)
+                .review(review)
                 .build();
     }
 }
