@@ -54,9 +54,9 @@ jobs:
     # docker build & push to production
     - name: Docker build & push
       run: |
-        sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        sudo docker build -t ${{ secrets.DOCKER_USERNAME }}/juksoon:latest -f ./Dockerfile .
-        sudo docker push ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/juksoon -f ./Dockerfile .
+        docker push ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
     
     # deploy to production
     - name: EC2 Connect & Deploy
@@ -67,16 +67,21 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script_stop: true
         script: |
-          # spring 컨테이너 중지 및 제거 (컨테이너가 있는 경우)
           CONTAINERS=$(docker ps -a -q --filter "name=juksoon") || true
           if [ -n "$CONTAINERS" ]; then
             sudo docker stop $CONTAINERS || true
             sudo docker rm -fv $CONTAINERS || true
           fi
-
-          # docker-compose 파일 실행
-          sudo docker-compose up -d
-
+          
+          # 포트 8080을 사용 중인 프로세스 확인
+          sudo lsof -i -P -n | grep 8080 || echo "포트 8080 미사용"
+        
+          # 최신 Docker 이미지 pull 받기
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
+        
+          # Docker 컨테이너 실행
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
+        
           # 불필요한 Docker 이미지 정리
           sudo docker image prune -f
-    
+          
