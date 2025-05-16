@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
 
@@ -41,19 +41,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean build -x test --stacktrace
       shell: bash
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-  
-    steps:
-    # repository checkout
-    - name: Checkout
-      uses: actions/checkout@v4
-    
-    # Dockerfile 위치 확인
-    - name: Check Dockerfile location
-      run: find . -name "Dockerfile"
     
     # docker build & push to production
     - name: Docker build & push
