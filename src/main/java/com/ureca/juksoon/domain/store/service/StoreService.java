@@ -63,12 +63,16 @@ public class StoreService {
     @Transactional
     public ModifyStoreRes updateStore(Long userId, StoreReq req) {
 
-        // 이전 파일 삭제
+        // 이전 파일 가져오기
         Store store = findStoreByUserId(userId);
         String logoImageURL = store.getLogoImageURL();
 
         if (req.getImage() != null && !req.getImage().isEmpty()) {
-            s3Service.deleteMultiFiles(List.of(logoImageURL), FilePath.STORE);
+            // 이전 파일이 있다면 삭제
+            if(logoImageURL != null){
+                s3Service.deleteMultiFiles(List.of(logoImageURL), FilePath.STORE);
+            }
+
             logoImageURL = s3Service.uploadFile(req.getImage(), FilePath.STORE);
         }
 
