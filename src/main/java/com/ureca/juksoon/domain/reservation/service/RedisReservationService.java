@@ -1,10 +1,15 @@
 package com.ureca.juksoon.domain.reservation.service;
 
+import com.ureca.juksoon.domain.feed.entity.Feed;
+import com.ureca.juksoon.domain.feed.repository.FeedRepository;
 import com.ureca.juksoon.domain.reservation.dto.ReservationRes;
 import com.ureca.juksoon.domain.reservation.pessimistic.PessimisticReservationService;
+import com.ureca.juksoon.domain.reservation.repository.ReservationRepository;
 import com.ureca.juksoon.domain.reservation.service.publisher.ReservationStreamPublisher;
 import com.ureca.juksoon.domain.reservation.service.publisher.Ticket;
 import com.ureca.juksoon.domain.reservation.service.publisher.TicketPublisher;
+import com.ureca.juksoon.domain.user.entity.User;
+import com.ureca.juksoon.domain.user.repository.UserRepository;
 import com.ureca.juksoon.global.exception.GlobalException;
 import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.response.ResultCode;
@@ -29,6 +34,9 @@ import org.springframework.stereotype.Service;
 @EnableRetry
 @RequiredArgsConstructor
 public class RedisReservationService {
+    private final UserRepository userRepository;
+    private final FeedRepository feedRepository;
+    private final ReservationRepository reservationRepository;
     private final TicketPublisher ticketPublisher;
     private final ReservationStreamPublisher reservationStreamPublisher;
     private final PessimisticReservationService pessimisticReservationService;
@@ -38,6 +46,8 @@ public class RedisReservationService {
             maxAttempts = 3,
             recover = "pessimisticReserve")
     public String reserve(Long userId, Long feedId) {
+        if(isAlreadyReserve(userId, feedId)) throw new GlobalException(ResultCode.TICKET_ALREADY_PUBLISHED);
+
         Ticket ticket = ticketPublisher.publish(userId, feedId);
 
         if (ticket.hasError()) throwError(ticket);
@@ -51,6 +61,12 @@ public class RedisReservationService {
     public String pessimisticReserve(DataAccessException e, Long userId, Long feedId) {
         ReservationRes response = pessimisticReservationService.doReservation(feedId, userId);
         return "ok";
+    }
+
+    private boolean isAlreadyReserve(Long userId, Long feedId) {
+        User user = userRepository.getReferenceById(userId);
+        Feed feed = feedRepository.getReferenceById(feedId);
+        return reservationRepository.existsReservationByUserAndFeed(user, feed);
     }
 
     private void throwError(Ticket ticket) {
