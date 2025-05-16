@@ -47,6 +47,10 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
+    # Dockerfile 위치 확인
+    - name: Check Dockerfile location
+      run: find . -name "Dockerfile"
+    
     # docker build & push to production
     - name: Docker build & push
       run: |
