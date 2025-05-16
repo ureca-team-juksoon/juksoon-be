@@ -17,7 +17,6 @@ jobs:
     steps:
     # docker build & push to production
     - name: Docker build & push
-      if: contains(github.ref, 'main')
       run: |
         sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         sudo docker build -t ${{ secrets.DOCKER_USERNAME }}/juksoon:latest -f ./Dockerfile .
@@ -25,7 +24,6 @@ jobs:
     
     # deploy to production
     - name: EC2 Connect & Deploy
-      if: contains(github.ref, 'main')
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SERVER_IP }}
