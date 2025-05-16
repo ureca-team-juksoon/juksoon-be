@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.ureca.juksoon.global.response.ResultCode.REVIEW_NOT_FOUND;
@@ -117,7 +118,14 @@ public class ReviewService {
 
         // 기존 review 파일 S3에서 제거
         List<ReviewFile> files = reviewFileRepository.findAllByReviewId(review.getId());
-        s3Service.deleteMultiFiles(files.stream().map(ReviewFile::getUrl).toList(), FilePath.REVIEW);
+        List<String> fileUrls = files.stream()
+                .map(ReviewFile::getUrl)
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (!fileUrls.isEmpty()) {
+            s3Service.deleteMultiFiles(fileUrls, FilePath.REVIEW);
+        }
         reviewFileRepository.deleteAll(files);
 
         // 새로운 review 파일 정보 추가

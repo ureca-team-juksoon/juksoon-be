@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -22,6 +23,7 @@ public class ReviewWithFiles {
     private String content;
     private List<String> imageUrls;
     private String videoUrl;
+    private String createAt;
 
     public static ReviewWithFiles from(Review review, List<ReviewFile> files) {
         return ReviewWithFiles.builder()
@@ -29,6 +31,7 @@ public class ReviewWithFiles {
                 .writer(review.getUser().getNickname())
                 .title(review.getTitle())
                 .content(review.getContent())
+                .createAt(review.getModifiedAt().toString())
                 .imageUrls(files.stream()
                         .filter(f -> f.getType() == FileType.IMAGE)
                         .map(ReviewFile::getUrl)
