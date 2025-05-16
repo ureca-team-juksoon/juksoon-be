@@ -186,8 +186,10 @@ public class FeedService {
         // 기존 feedFile 정보 제거
         List<FeedFile> files = feedFileRepository.findAllByFeed(feed);
 
-        s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
-        feedFileRepository.deleteAll(files);
+        if(!files.isEmpty()) {
+            s3Service.deleteMultiFiles(files.stream().map(FeedFile::getUrl).toList(), FilePath.Feed);
+            feedFileRepository.deleteAll(files);
+        }
 
         // 새로운 feedFile 정보 추가
         saveFeedFiles(req.getImages(), req.getVideo(), feed);
