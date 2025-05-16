@@ -19,9 +19,9 @@ jobs:
     - name: Docker build & push
       if: contains(github.ref, 'main')
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/juksoon:latest -f ./Dockerfile .
-        docker push ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
+        sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        sudo docker build -t ${{ secrets.DOCKER_USERNAME }}/juksoon:latest -f ./Dockerfile .
+        sudo docker push ${{ secrets.DOCKER_USERNAME }}/juksoon:latest
     
     # deploy to production
     - name: EC2 Connect & Deploy
@@ -36,13 +36,13 @@ jobs:
           # spring 컨테이너 중지 및 제거 (컨테이너가 있는 경우)
           CONTAINERS=$(docker ps -a -q --filter "name=juksoon") || true
           if [ -n "$CONTAINERS" ]; then
-            docker stop $CONTAINERS || true
-            docker rm -fv $CONTAINERS || true
+            sudo docker stop $CONTAINERS || true
+            sudo docker rm -fv $CONTAINERS || true
           fi
 
           # docker-compose 파일 실행
-          docker-compose up -d
+          sudo docker-compose up -d
 
           # 불필요한 Docker 이미지 정리
-          docker image prune -f
+          sudo docker image prune -f
     
