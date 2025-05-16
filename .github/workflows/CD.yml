@@ -47,6 +47,10 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
+    # repository checkout
+    - name: Checkout
+      uses: actions/checkout@v4
+    
     # Dockerfile 위치 확인
     - name: Check Dockerfile location
       run: find . -name "Dockerfile"
