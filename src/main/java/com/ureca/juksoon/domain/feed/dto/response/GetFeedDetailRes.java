@@ -24,6 +24,9 @@ public class GetFeedDetailRes {
     @Schema(description = "카테고리", example = "KOREAN")
     private Category category;
 
+    @Schema(description = "가격", example = "1200")
+    private int price;
+
     @Schema(description = "최대 신청 인원", example = "20")
     private int maxUser;
 
@@ -62,6 +65,7 @@ public class GetFeedDetailRes {
         this.title = feed.getTitle();
         this.content = feed.getContent();
         this.category = feed.getCategory();
+        this.price = feed.getPrice();
         this.maxUser = feed.getMaxUser();
         this.registeredUser = feed.getRegisteredUser();
         this.startAt = feed.getStartAt();
