@@ -26,6 +26,8 @@ public class QReservation extends EntityPathBase<Reservation> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final DateTimePath<java.time.LocalDateTime> requestedAt = createDateTime("requestedAt", java.time.LocalDateTime.class);
+
     public final com.ureca.juksoon.domain.user.entity.QUser user;
 
     public QReservation(String variable) {

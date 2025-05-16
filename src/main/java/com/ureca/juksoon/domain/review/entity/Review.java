@@ -1,13 +1,17 @@
 package com.ureca.juksoon.domain.review.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
-import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
-import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
-import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
 import com.ureca.juksoon.domain.user.entity.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,11 +39,11 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-     @ManyToOne
-     @JoinColumn(name = "feed_id", nullable = false)
-     private Feed feed;
+    @ManyToOne
+    @JoinColumn(name = "feed_id", nullable = false)
+    private Feed feed;
 
-    public static Review of(User user, Feed feed, ReviewReq req){
+    public static Review of(User user, Feed feed, ReviewReq req) {
         return Review.builder()
                 .title(req.getTitle())
                 .content(req.getContent())
@@ -48,7 +52,7 @@ public class Review extends BaseEntity {
                 .build();
     }
 
-    public void update(ReviewReq req){
+    public void update(ReviewReq req) {
         this.title = req.getTitle();
         this.content = req.getContent();
     }

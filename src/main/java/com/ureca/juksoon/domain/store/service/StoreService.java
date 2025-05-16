@@ -35,7 +35,7 @@ public class StoreService {
 
         // S3에 로고 이미지 먼저 업로드
         String imageURL = "";
-        if (req.getImage()!= null && !req.getImage().isEmpty()) {
+        if (req.getImage() != null && !req.getImage().isEmpty()) {
             imageURL = s3Service.uploadFile(req.getImage(), FilePath.STORE);
         }
 
@@ -80,7 +80,7 @@ public class StoreService {
 
     private Store findStoreByUserId(Long userId) {
         Store store = storeRepository.findByUserId(userId);
-        if(store == null) throw new GlobalException(STORE_NOT_FOUND);
+        if (store == null) throw new GlobalException(STORE_NOT_FOUND);
         return store;
     }
 

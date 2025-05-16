@@ -1,14 +1,14 @@
 package com.ureca.juksoon.domain.review.service;
 
+import com.ureca.juksoon.domain.common.FileType;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.repository.FeedRepository;
-import com.ureca.juksoon.domain.review.dto.response.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.dto.request.ReviewReq;
 import com.ureca.juksoon.domain.review.dto.response.CreateReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.DeleteReviewRes;
 import com.ureca.juksoon.domain.review.dto.response.GetReviewsRes;
 import com.ureca.juksoon.domain.review.dto.response.ModifyReviewRes;
-import com.ureca.juksoon.domain.common.FileType;
+import com.ureca.juksoon.domain.review.dto.response.ReviewWithFiles;
 import com.ureca.juksoon.domain.review.entity.Review;
 import com.ureca.juksoon.domain.review.entity.ReviewFile;
 import com.ureca.juksoon.domain.review.repository.ReviewFileRepository;
@@ -49,7 +49,7 @@ public class ReviewService {
      * review 생성
      */
     @Transactional
-    public CreateReviewRes createReview(Long userId, Long feedId, ReviewReq req){
+    public CreateReviewRes createReview(Long userId, Long feedId, ReviewReq req) {
 
         User user = userRepository.getReferenceById(userId);
         Feed feed = feedRepository.getReferenceById(feedId);
@@ -72,11 +72,11 @@ public class ReviewService {
         // 리뷰에 해당하는 파일들 모두 조회
         List<Review> reviews = List.of();
 
-        if(userRole.equals(UserRole.ROLE_OWNER)){
+        if (userRole.equals(UserRole.ROLE_OWNER)) {
             reviews = reviewRepository.findAllByFeedId(feedId);
         }
 
-        if(userRole.equals(UserRole.ROLE_TESTER)){
+        if (userRole.equals(UserRole.ROLE_TESTER)) {
             reviews = reviewRepository.findByFeedIdAndUserId(feedId, userId)
                     .map(List::of)
                     .orElse(List.of());
@@ -162,12 +162,12 @@ public class ReviewService {
         List<ReviewFile> files = new ArrayList<>();
 
         // IMAGE가 존재하는 경우
-        if(images != null && !images.isEmpty()){
+        if (images != null && !images.isEmpty()) {
             addImageFiles(images, review, files);
         }
 
         // VIDEO가 존재하는 경우
-        if(video != null && !video.isEmpty()){
+        if (video != null && !video.isEmpty()) {
             addVideoFile(video, review, files);
         }
 
@@ -175,7 +175,7 @@ public class ReviewService {
     }
 
     private void addImageFiles(List<MultipartFile> images, Review review, List<ReviewFile> files) {
-        for(MultipartFile image : images){
+        for (MultipartFile image : images) {
             files.add(ReviewFile.of(review, s3Service.uploadFile(image, FilePath.REVIEW), FileType.IMAGE));
         }
     }

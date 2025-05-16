@@ -3,7 +3,6 @@ package com.ureca.juksoon.domain.feed.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.Status;
-import com.ureca.juksoon.domain.user.entity.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 

@@ -1,8 +1,8 @@
 package com.ureca.juksoon.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ureca.juksoon.global.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.domain.user.entity.UserRole;
+import com.ureca.juksoon.global.refresh.service.RefreshTokenService;
 import com.ureca.juksoon.global.security.exception.CustomAccessDeniedHandler;
 import com.ureca.juksoon.global.security.exception.CustomAuthenticationEntryPoint;
 import com.ureca.juksoon.global.security.exception.SecurityExceptionResponseSetter;
@@ -13,8 +13,8 @@ import com.ureca.juksoon.global.security.oauth.filter.CustomLogoutFilter;
 import com.ureca.juksoon.global.security.oauth.handler.CustomOAuth2AuthenticationSuccessHandler;
 import com.ureca.juksoon.global.security.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,7 +43,7 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http    //rest api 기본 설정 추가
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -64,11 +64,10 @@ public class SecurityConfig {
         http    //인가 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers( "/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/refresh").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/user/role").hasAnyAuthority(UserRole.ROLE_FIRST_LOGIN.getUserRole())
-                        .requestMatchers("/test").hasAnyAuthority(UserRole.ROLE_OWNER.getUserRole())
                         .anyRequest().authenticated());
 
         http    //예외 발생시 예외 처리 핸들러들
@@ -80,28 +79,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CustomLogoutFilter customLogoutFilter(){
+    public CustomLogoutFilter customLogoutFilter() {
         return new CustomLogoutFilter(refreshTokenService);
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception{
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         return new JwtAuthenticationFilter(jwtProvider);
     }
 
 
     @Bean
-    public ObjectMapper objectMapper(){
+    public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
 
     @Bean
-    public AuthenticationEntryPoint customAuthenticationEntryPoint(){
+    public AuthenticationEntryPoint customAuthenticationEntryPoint() {
         return new CustomAuthenticationEntryPoint(exceptionResponseSetter);
     }
 
     @Bean
-    public AccessDeniedHandler customAccessDeniedHandler(){
+    public AccessDeniedHandler customAccessDeniedHandler() {
         return new CustomAccessDeniedHandler(exceptionResponseSetter);
     }
 
@@ -112,7 +111,7 @@ public class SecurityConfig {
                 refreshTokenProvider,
                 refreshTokenService,
                 objectMapper()
-                );
+        );
     }
 
     @Bean

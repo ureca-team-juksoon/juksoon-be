@@ -22,22 +22,22 @@ public class FeedFileJdbcRepositoryImpl implements FeedFileJdbcRepository {
     @Transactional
     public void saveAllFeedFiles(List<FeedFile> files) {
         jdbcTemplate.batchUpdate("INSERT INTO feed_file (feed_id, url, type, created_at) " +
-                "VALUES(?, ?, ?, ?)",
-            new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    FeedFile file = files.get(i);
-                    ps.setLong(1, file.getFeed().getId());
-                    ps.setString(2, file.getUrl());
-                    ps.setString(3, file.getType().toString());
-                    ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-                }
+                        "VALUES(?, ?, ?, ?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        FeedFile file = files.get(i);
+                        ps.setLong(1, file.getFeed().getId());
+                        ps.setString(2, file.getUrl());
+                        ps.setString(3, file.getType().toString());
+                        ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+                    }
 
-                @Override
-                public int getBatchSize() {
-                    return files.size();
+                    @Override
+                    public int getBatchSize() {
+                        return files.size();
+                    }
                 }
-            }
         );
     }
 }

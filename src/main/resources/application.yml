@@ -2,7 +2,7 @@
 # SPRING==============================================>
 spring:
   config:
-    import: optional:dotenv:.env
+    import: optional:dotenv:../../../.env
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -35,6 +35,13 @@ spring:
     multipart:
       max-file-size: 100MB # 각 파일의 최대 크기 (30초 동영상 기준)
       max-request-size: 140MB # 전체 파일의 최대 크기 (동영상 + 이미지)
+  #<====================================================
+
+  #Redis==============================================>
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
   #<====================================================
 
 # KAKAO_LOGIN==============================================>
@@ -109,4 +116,11 @@ logging:
 
 server:
   port: 8080
+  tomcat:
+    max-connections: 30000
+    accept-count: 10000
+    threads:
+      max: 1000
+      min-spare: 200
+
 

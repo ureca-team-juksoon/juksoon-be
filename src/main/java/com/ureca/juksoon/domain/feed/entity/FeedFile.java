@@ -2,7 +2,16 @@ package com.ureca.juksoon.domain.feed.entity;
 
 import com.ureca.juksoon.domain.common.BaseEntity;
 import com.ureca.juksoon.domain.common.FileType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,9 +42,9 @@ public class FeedFile extends BaseEntity {
 
     public static FeedFile of(Feed feed, String url, FileType type) {
         return FeedFile.builder()
-            .feed(feed)
-            .url(url)
-            .type(type)
-            .build();
+                .feed(feed)
+                .url(url)
+                .type(type)
+                .build();
     }
 }

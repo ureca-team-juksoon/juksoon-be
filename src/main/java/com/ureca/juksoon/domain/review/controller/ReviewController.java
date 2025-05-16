@@ -10,7 +10,14 @@ import com.ureca.juksoon.global.response.CommonResponse;
 import com.ureca.juksoon.global.security.jwt.userdetail.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +31,7 @@ public class ReviewController {
     public CommonResponse<CreateReviewRes> createReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
-            @PathVariable("feed_id") Long feedId){
+            @PathVariable("feed_id") Long feedId) {
 
         return CommonResponse.success(reviewService.createReview(customUserDetails.getUserId(), feedId, request));
     }
@@ -33,7 +40,7 @@ public class ReviewController {
     @GetMapping
     public CommonResponse<GetReviewsRes> getReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable("feed_id") Long feedId){
+            @PathVariable("feed_id") Long feedId) {
 
         return CommonResponse.success(reviewService.getReviews(customUserDetails.getUserId(), customUserDetails.getUserRole(), feedId));
     }
@@ -43,7 +50,7 @@ public class ReviewController {
     public CommonResponse<ModifyReviewRes> updteReview(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute ReviewReq request,
-            @PathVariable("feed_id") Long feedId){
+            @PathVariable("feed_id") Long feedId) {
 
         return CommonResponse.success(reviewService.updateReview(customUserDetails.getUserId(), feedId, request));
     }
