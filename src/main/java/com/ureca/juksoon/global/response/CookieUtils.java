@@ -7,11 +7,16 @@ import org.springframework.web.util.WebUtils;
 
 public class CookieUtils {
     public static void setResponseBasicCookie(String key, String value, int expiredMs, HttpServletResponse response){
-        Cookie cookie = new Cookie(key, value);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(expiredMs);
-        response.addCookie(cookie);
+        String cookieValue = String.format(
+        "%s=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=None; Secure",
+        key, value, expiredMs
+    );
+    response.addHeader("Set-Cookie", cookieValue);
+        // Cookie cookie = new Cookie(key, value);
+        // cookie.setPath("/");
+        // cookie.setHttpOnly(true);
+        // cookie.setMaxAge(expiredMs);
+        // response.addCookie(cookie);
     }
 
     public static void deleteCookie(String key, String value, HttpServletResponse response){
