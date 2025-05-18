@@ -29,14 +29,17 @@ public class RedisConfig {
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(host, port);
         // 2) 클라이언트 옵션
         ClientOptions clientOptions = ClientOptions.builder()
-                .autoReconnect(false)// 네트워크 끊김 발생 시 자동 재접속
+                .autoReconnect(true)// 네트워크 끊김 발생 시 자동 재접속
+                .socketOptions(SocketOptions.builder()
+                        .keepAlive(true)
+                        .connectTimeout(Duration.ofSeconds(10))
+                        .build())
                 .build();
         // 3) 넷티 옵션 (optional)
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .clientOptions(clientOptions)
                 .commandTimeout(Duration.ofSeconds(60))  // 명령 타임아웃
                 .shutdownTimeout(Duration.ofMillis(100))
-                .socketOptions(SocketOptions.builder().connectTimeout(Duration.ofSeconds(10)))
                 .build();
         return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
