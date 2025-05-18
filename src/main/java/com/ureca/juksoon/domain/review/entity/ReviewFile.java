@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "review_file")
+@Table(name = "reviewfile")
 @Builder
 @Getter
 @AllArgsConstructor
