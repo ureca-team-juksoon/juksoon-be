@@ -10,6 +10,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceClientConfigurat
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import io.lettuce.core.SocketOptions;
 
 import java.time.Duration;
 
@@ -33,8 +34,9 @@ public class RedisConfig {
         // 3) 넷티 옵션 (optional)
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .clientOptions(clientOptions)
-                .commandTimeout(Duration.ofSeconds(2))  // 명령 타임아웃
+                .commandTimeout(Duration.ofSeconds(60))  // 명령 타임아웃
                 .shutdownTimeout(Duration.ofMillis(100))
+                .socketOptions(SocketOptions.builder().connectTimeout(Duration.ofSeconds(10)))
                 .build();
         return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
