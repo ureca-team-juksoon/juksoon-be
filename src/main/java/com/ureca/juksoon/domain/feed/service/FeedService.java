@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.ureca.juksoon.global.response.ResultCode.FEED_NOT_FOUND;
@@ -63,7 +64,8 @@ public class FeedService {
         long maxPage = (feedRepository.countAllByFiltering(isAvailable, category, keyword) + pageable.getPageSize() - 1) / pageable.getPageSize();
 
         return new GetHomeInfoRes(maxPage, feedRepository.findPageByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
-                .map(GetFeedRes::new).toList());
+            .sorted(Comparator.comparing(Feed::getPrice))
+            .map(GetFeedRes::new).toList());
     }
 
     /**
