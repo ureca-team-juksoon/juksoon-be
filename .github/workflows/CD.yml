@@ -59,14 +59,15 @@ jobs:
         script_stop: true
         script: |
           # spring 컨테이너 중지 및 제거 (컨테이너가 있는 경우)
-          CONTAINERS=$(docker ps -a -q --filter "name=juksoon") || true
-          if [ -n "$CONTAINERS" ]; then
-            sudo docker stop $CONTAINERS || true
-            sudo docker rm -fv $CONTAINERS || true
-          fi
+          # CONTAINERS=$(docker ps -a -q --filter "name=juksoon") || true
+          # if [ -n "$CONTAINERS" ]; then
+          #   sudo docker stop $CONTAINERS || true
+          #   sudo docker rm -fv $CONTAINERS || true
+          # fi
 
           # docker-compose 파일 실행
-          sudo docker-compose up -d
+          sudo docker compose pull
+          sudo docker compose up -d
 
           # 불필요한 Docker 이미지 정리
           sudo docker image prune -f
