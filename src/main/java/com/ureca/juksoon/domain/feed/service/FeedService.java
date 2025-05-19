@@ -3,13 +3,7 @@ package com.ureca.juksoon.domain.feed.service;
 import com.ureca.juksoon.domain.common.FileType;
 import com.ureca.juksoon.domain.feed.dto.request.CreateFeedReq;
 import com.ureca.juksoon.domain.feed.dto.request.ModifyFeedReq;
-import com.ureca.juksoon.domain.feed.dto.response.CreateFeedRes;
-import com.ureca.juksoon.domain.feed.dto.response.DeleteFeedRes;
-import com.ureca.juksoon.domain.feed.dto.response.GetFeedDetailRes;
-import com.ureca.juksoon.domain.feed.dto.response.GetFeedRes;
-import com.ureca.juksoon.domain.feed.dto.response.GetHomeInfoRes;
-import com.ureca.juksoon.domain.feed.dto.response.GetMypageInfoRes;
-import com.ureca.juksoon.domain.feed.dto.response.ModifyFeedRes;
+import com.ureca.juksoon.domain.feed.dto.response.*;
 import com.ureca.juksoon.domain.feed.entity.Category;
 import com.ureca.juksoon.domain.feed.entity.Feed;
 import com.ureca.juksoon.domain.feed.entity.FeedFile;
@@ -35,13 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-import static com.ureca.juksoon.global.response.ResultCode.FEED_NOT_FOUND;
-import static com.ureca.juksoon.global.response.ResultCode.FORBIDDEN;
-import static com.ureca.juksoon.global.response.ResultCode.STORE_NOT_FOUND;
-import static com.ureca.juksoon.global.response.ResultCode.USER_NOT_FOUNT;
+import static com.ureca.juksoon.global.response.ResultCode.*;
 
 @Slf4j
 @Service
@@ -64,7 +54,6 @@ public class FeedService {
         long maxPage = (feedRepository.countAllByFiltering(isAvailable, category, keyword) + pageable.getPageSize() - 1) / pageable.getPageSize();
 
         return new GetHomeInfoRes(maxPage, feedRepository.findPageByFiltering(pageable, isAvailable, sortType, category, keyword).stream()
-            .sorted(Comparator.comparing(Feed::getPrice))
             .map(GetFeedRes::new).toList());
     }
 

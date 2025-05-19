@@ -4,11 +4,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ureca.juksoon.domain.feed.entity.Category;
-import com.ureca.juksoon.domain.feed.entity.Feed;
-import com.ureca.juksoon.domain.feed.entity.QFeed;
-import com.ureca.juksoon.domain.feed.entity.SortType;
-import com.ureca.juksoon.domain.feed.entity.Status;
+import com.ureca.juksoon.domain.feed.entity.*;
 import com.ureca.juksoon.domain.store.entity.Store;
 import com.ureca.juksoon.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +66,7 @@ public class CustomFeedRepositoryImpl implements CustomFeedRepository {
                 .selectFrom(feed)
                 .leftJoin(feed.store, store).fetchJoin()
                 .where(feed.id.in(feedIds))
+                .orderBy(getSortTypeSpecifier(sortType))
                 .fetch();
     }
 
